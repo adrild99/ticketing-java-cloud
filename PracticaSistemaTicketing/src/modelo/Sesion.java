@@ -5,8 +5,6 @@ import java.util.ArrayList;
 
 public class Sesion {
 
-    private static int contadorSesiones = 1;
-
     private String idSesion;
     private LocalDateTime fechaHora;
     private int aforoTotal;
@@ -16,8 +14,6 @@ public class Sesion {
     private ArrayList<Asiento> asientos = new ArrayList<>();
 
     public Sesion(LocalDateTime fechaHora, int aforoTotal, int aforoDisponible, ModoAforo modo) {
-        this.idSesion = String.format("SES-%02d", contadorSesiones);
-        contadorSesiones++;;
         
         this.fechaHora = fechaHora;
         this.aforoTotal = aforoTotal;
@@ -80,11 +76,22 @@ public class Sesion {
         return idSesion;
     }
 
+    public void setIdSesion(String idSesion) {
+        this.idSesion = idSesion;
+    }
+
     public ModoAforo getModo() {
         return modo;
     }
 
     public LocalDateTime getFechaHora() {
         return fechaHora;
+    }
+    public void setAforoTotal(int aforoTotal) {
+        this.aforoTotal=aforoTotal;
+        
+    }
+    public int getAforoTotal() {
+        return aforoTotal;
     }
 }

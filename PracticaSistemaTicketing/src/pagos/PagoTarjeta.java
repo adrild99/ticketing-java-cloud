@@ -1,15 +1,18 @@
 package pagos;
 
-
 public class PagoTarjeta extends Pago {
 
     private String numTarjeta;
     private String titular;
+    private String caducidad;
+    private String cvv;
 
-    public PagoTarjeta(String idPago, String numTarjeta, String titular) {
+    public PagoTarjeta(String idPago, String numTarjeta, String titular, String caducidad, String cvv) {
         super(idPago);
         this.numTarjeta = numTarjeta;
         this.titular = titular;
+        this.caducidad = caducidad;
+        this.cvv = cvv;
     }
 
     @Override
@@ -34,4 +37,20 @@ public class PagoTarjeta extends Pago {
     public void setTitular(String titular) {
         this.titular = titular;
     }
+
+    public void setCVV(String cvv) {
+        this.cvv = cvv;
+    }
+
+    public String getCVV() {
+        return cvv;
+    }
+    public String getCaducidad() {
+        return caducidad;
+    }
+
+    public void setCaducidad(String caducidad) {
+        this.caducidad = caducidad;
+    }
+
 }

@@ -16,6 +16,7 @@ public class Entrada {
         this.idEntrada = String.format("ENT-%03d", contadorEntradas); // %03d para que sea ENT-001
         contadorEntradas++;
         this.idSesion=idSesion;
+        this.idEvento = idEvento; 
         this.asiento=asiento;
         this.precioFinal=precioFinal;
     }
@@ -45,7 +46,7 @@ public class Entrada {
     }
 
     public String getIdEvento() {
-        return idEvento;
+        return this.idEvento;
     }
 
     public void setIdEvento(String idEvento) {

@@ -2,16 +2,19 @@ package modelo;
 
 import java.util.ArrayList;
 
-public abstract class Evento implements Vendible{
-    
+public abstract class Evento implements Vendible {
+
+    // Contador global para todos los eventos.
     private static int contadorEventos = 1;
+
+    // 1. Contador normal (cada evento empezará en 1)
+    private int contadorSesionesPropias = 1;
 
     private String id;
     private String nombre;
     private String lugar;
     private Categoria categoria;
     private ArrayList<Sesion> sesiones = new ArrayList<>();
-
 
     public Evento(String nombre, String lugar, Categoria categoria) {
         this.id = String.format("EV-%02d", contadorEventos);
@@ -21,17 +24,29 @@ public abstract class Evento implements Vendible{
         this.categoria = categoria;
     }
 
-    public void addSesion(Sesion s){
+    public void addSesion(Sesion s) {
+        // Generamos el ID
+        String idGenerado = String.format("SES-%02d", this.contadorSesionesPropias);
+
+        // Se mete en sesion
+        s.setIdSesion(idGenerado);
+
+        // Sumamos 1 al contador de este evento en concreto
+        this.contadorSesionesPropias++;
+
+        // Añadimos la sesión a la lista
         this.sesiones.add(s);
     }
-    public Sesion getSesionById(String id){
+
+    public Sesion getSesionById(String id) {
         for (Sesion s : this.sesiones) {
-            if (s.getIdSesion().equals(id)) {
-                return s; 
+            if (s.getIdSesion().equalsIgnoreCase(id)) {
+                return s;
             }
         }
-        return null;    
+        return null;
     }
+
     public abstract double getRecargoBase();
 
     @Override
@@ -78,5 +93,5 @@ public abstract class Evento implements Vendible{
     public void setSesiones(ArrayList<Sesion> sesiones) {
         this.sesiones = sesiones;
     }
-    
+
 }
