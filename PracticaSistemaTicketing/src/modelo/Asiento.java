@@ -5,9 +5,9 @@ public class Asiento {
     private boolean reservado;
     private Zona zona;
 
-    public Asiento(String idAsiento, boolean reservado, Zona zona){
+    public Asiento(String idAsiento, Zona zona){
         this.idAsiento = idAsiento;
-        this. reservado = reservado;
+        this.reservado = false;
         this.zona = zona;
     }
 

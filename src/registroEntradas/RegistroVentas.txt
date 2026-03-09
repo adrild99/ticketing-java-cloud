@@ -1,0 +1,6 @@
+=== NUEVO TICKET DE VENTA ===
+Fecha de proceso: 2026-03-09T20:24:41.339767600
+Datos del pedido:
+PEDIDO: PED-001,  Estado: PROCESADO, Total: 104.0euros, Nº Entradas: 4
+=============================
+

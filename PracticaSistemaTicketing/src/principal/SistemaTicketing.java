@@ -8,6 +8,7 @@ import java.util.Stack;
 
 import modelo.Asiento;
 import modelo.Categoria;
+import modelo.Cine;
 import modelo.Concierto;
 import modelo.Evento;
 import modelo.ModoAforo;
@@ -57,13 +58,17 @@ public class SistemaTicketing {
         Teatro t1 = new Teatro("El Rey León", "Teatro Lope de Vega", Categoria.TEATRO, false, true);
         Sesion s3 = new Sesion(LocalDateTime.now().plusDays(5), 100, 100, ModoAforo.NUMERADO);
         Sesion s4 = new Sesion(LocalDateTime.now().plusDays(6), 100, 100, ModoAforo.NUMERADO);
-
+        Cine p1 = new Cine("Interstellar", "Mk2 Cinesur", Categoria.CINE, false, false);
+        Sesion s5 = new Sesion(LocalDateTime.now().plusDays(6), 60, 60, ModoAforo.NUMERADO);   
+        
         t1.addSesion(s3);
         t1.addSesion(s4);
+        p1.addSesion(s5);
 
         this.catalogo.add(c1);
         this.catalogo.add(c2);
         this.catalogo.add(t1);
+        this.catalogo.add(p1);
     }
 
     public void menu() {
@@ -76,12 +81,12 @@ public class SistemaTicketing {
             System.out.println("3. Deshacer última operación");
             System.out.println("4. Procesar cola de pedidos");
             System.out.println("5. Salir");
-            System.out.println("6. Ver estadísticas de ventas"); 
+            System.out.println("6. Ver estadísticas de ventas");
             System.out.print("Elige una opción: ");
 
             try {
                 int seleccion = sc.nextInt();
-                sc.nextLine(); 
+                sc.nextLine();
 
                 if (seleccion == 1) {
                     verCatalogo();
@@ -94,7 +99,7 @@ public class SistemaTicketing {
                 } else if (seleccion == 5) {
                     salir = true;
                     System.out.println("Hasta prontooooo");
-                } else if (seleccion == 6) { 
+                } else if (seleccion == 6) {
                     mostrarEstadisticas();
                 } else {
                     System.out.println("Opción incorrecta, elige un número del 1 al 6.");
@@ -207,17 +212,35 @@ public class SistemaTicketing {
                 entradasCompradas.add(e);
             }
         } else {
-            asientosReservados = sesionElegida.reservarAsientos(cantidad);
-            if (asientosReservados == null) {
-                System.out.println("Cancelando la compra...");
-                return;
-            }
-            for (int i = 0; i < asientosReservados.size(); i++) {
-                Asiento a = asientosReservados.get(i);
-                double precioFinal = precioBase * eventoElegido.getRecargoBase() * a.getMultiplicadorZona();
-                Entrada e = new Entrada(eventoElegido.getId(), sesionElegida.getIdSesion(), a, precioFinal);
-                miCarrito.addEntrada(e);
-                entradasCompradas.add(e);
+            // Preguntamos cuántas quiere comprar (por seguridad)
+            System.out.println("Asientos disponibles en esta sesión:");
+            sesionElegida.mostrarAsientosLibres(); // Este método lo creamos ahora en Sesion
+
+            asientosReservados = new ArrayList<>(); // Inicializamos la lista de los que elija
+
+            for (int i = 0; i < cantidad; i++) {
+                System.out.print("Elige el ID del asiento para la entrada " + (i + 1) + ": ");
+                String idAsiento = sc.nextLine();
+
+                // Busca el asiento específico
+                Asiento a = sesionElegida.buscarAsientoPorId(idAsiento);
+
+                if (a != null && !a.getReservado()) {
+                    a.setReservado(true);
+                    asientosReservados.add(a);
+
+                    // Calcula el precio según la zona de ese asiento
+                    double precioFinal = precioBase * eventoElegido.getRecargoBase() * a.getMultiplicadorZona();
+
+                    Entrada e = new Entrada(eventoElegido.getId(), sesionElegida.getIdSesion(), a, precioFinal);
+                    miCarrito.addEntrada(e);
+                    entradasCompradas.add(e);
+
+                    System.out.println("Asiento " + idAsiento + " añadido. Precio: " + precioFinal + "euros");
+                } else {
+                    System.out.println("Asiento no disponible. Inténtalo de nuevo.");
+                    i--; // Restamos 1 al contador para que vuelva a pedir esta entrada
+                }
             }
         }
 
@@ -472,14 +495,14 @@ public class SistemaTicketing {
         try (java.util.Scanner lector = new java.util.Scanner(archivo)) {
             while (lector.hasNextLine()) {
                 String linea = lector.nextLine();
-                
+
                 // Buscamos la línea que tiene el resumen del pedido
                 if (linea.contains("Total: ")) {
                     try {
                         int inicio = linea.indexOf("Total: ") + 7;
                         int fin = linea.indexOf("euros");
                         String cifraTexto = linea.substring(inicio, fin).trim();
-                        
+
                         totalRecaudado += Double.parseDouble(cifraTexto);
                         pedidosProcesados++;
                     } catch (Exception e) {
