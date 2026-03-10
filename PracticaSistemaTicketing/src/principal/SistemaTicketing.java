@@ -6,6 +6,7 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.util.Stack;
 
+import excepciones.AsientoNoDisponibleException;
 import modelo.Asiento;
 import modelo.Categoria;
 import modelo.Cine;
@@ -59,8 +60,8 @@ public class SistemaTicketing {
         Sesion s3 = new Sesion(LocalDateTime.now().plusDays(5), 100, 100, ModoAforo.NUMERADO);
         Sesion s4 = new Sesion(LocalDateTime.now().plusDays(6), 100, 100, ModoAforo.NUMERADO);
         Cine p1 = new Cine("Interstellar", "Mk2 Cinesur", Categoria.CINE, false, false);
-        Sesion s5 = new Sesion(LocalDateTime.now().plusDays(6), 60, 60, ModoAforo.NUMERADO);   
-        
+        Sesion s5 = new Sesion(LocalDateTime.now().plusDays(6), 60, 60, ModoAforo.NUMERADO);
+
         t1.addSesion(s3);
         t1.addSesion(s4);
         p1.addSesion(s5);
@@ -222,24 +223,30 @@ public class SistemaTicketing {
                 System.out.print("Elige el ID del asiento para la entrada " + (i + 1) + ": ");
                 String idAsiento = sc.nextLine();
 
-                // Busca el asiento específico
-                Asiento a = sesionElegida.buscarAsientoPorId(idAsiento);
+                try {
+                    // Intentamos buscar el asiento (Si no existe, salta directo al catch)
+                    Asiento a = sesionElegida.buscarAsientoPorId(idAsiento);
 
-                if (a != null && !a.getReservado()) {
+                    // Comprobamos si el asiento existe pero ya estaba comprado
+                    if (a.getReservado()) {
+                        throw new AsientoNoDisponibleException(idAsiento); // Forzamos el error
+                    }
+
                     a.setReservado(true);
                     asientosReservados.add(a);
 
-                    // Calcula el precio según la zona de ese asiento
                     double precioFinal = precioBase * eventoElegido.getRecargoBase() * a.getMultiplicadorZona();
 
                     Entrada e = new Entrada(eventoElegido.getId(), sesionElegida.getIdSesion(), a, precioFinal);
                     miCarrito.addEntrada(e);
                     entradasCompradas.add(e);
 
-                    System.out.println("Asiento " + idAsiento + " añadido. Precio: " + precioFinal + "euros");
-                } else {
-                    System.out.println("Asiento no disponible. Inténtalo de nuevo.");
-                    i--; // Restamos 1 al contador para que vuelva a pedir esta entrada
+                    System.out.println("Asiento " + idAsiento + " añadido. Precio: " + precioFinal + " euros");
+
+                } catch (AsientoNoDisponibleException ex) {
+                    //Si falla cualquier cosa arriba, el programa cae aquí y no se cuelga
+                    System.out.println("Error " + ex.getMessage());
+                    i--; // Restamos 1 al contador para no perder la entrada y que el usuario vuelva a intentarlo
                 }
             }
         }

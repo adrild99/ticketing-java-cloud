@@ -3,6 +3,8 @@ package modelo;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import excepciones.AsientoNoDisponibleException;
+
 public class Sesion {
 
     private String idSesion;
@@ -104,13 +106,14 @@ public class Sesion {
     }
 
     // Método para buscar el objeto Asiento por su nombre (ID)
-    public Asiento buscarAsientoPorId(String id) {
+    public Asiento buscarAsientoPorId(String id) throws AsientoNoDisponibleException {
         for (Asiento a : this.asientos) {
             if (a.getIdAsiento().equalsIgnoreCase(id)) {
                 return a;
             }
         }
-        return null; // Si no lo encuentra
+        // Si no lo encuentra
+        throw new AsientoNoDisponibleException(id);
     }
 
     public String getIdSesion() {
