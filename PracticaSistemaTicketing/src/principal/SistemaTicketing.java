@@ -7,6 +7,7 @@ import java.util.Scanner;
 import java.util.Stack;
 
 import excepciones.AsientoNoDisponibleException;
+
 import modelo.Asiento;
 import modelo.Categoria;
 import modelo.Cine;
@@ -15,23 +16,36 @@ import modelo.Evento;
 import modelo.ModoAforo;
 import modelo.Sesion;
 import modelo.Teatro;
+
 import pagos.Pago;
 import pagos.PagoBizum;
 import pagos.PagoPayPal;
 import pagos.PagoTarjeta;
+
 import pedidos.Carrito;
 import pedidos.Entrada;
 import pedidos.EstadoPedido;
 import pedidos.Operacion;
 import pedidos.Pedido;
 import pedidos.TipoOperacion;
+
 import utilidades.Validador;
 
 import java.time.format.DateTimeFormatter;
-
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 
 public class SistemaTicketing {
+
+    public static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'a las' HH:mm:ss");
 
     private ArrayList<Evento> catalogo = new ArrayList<>();
     private Stack<Operacion> historial = new Stack<>();
@@ -40,7 +54,7 @@ public class SistemaTicketing {
 
     public static void main(String[] args) {
         SistemaTicketing sistema = new SistemaTicketing();
-        sistema.inicializarDatos();
+        sistema.cargarDatosBinarios();
         sistema.menu();
     }
 
@@ -81,8 +95,10 @@ public class SistemaTicketing {
             System.out.println("2. Comprar entradas");
             System.out.println("3. Deshacer última operación");
             System.out.println("4. Procesar cola de pedidos");
-            System.out.println("5. Salir");
+            System.out.println("5. Historial global de pedidos");
             System.out.println("6. Ver estadísticas de ventas");
+            System.out.println("7. SALIR");
+
             System.out.print("Elige una opción: ");
 
             try {
@@ -98,10 +114,13 @@ public class SistemaTicketing {
                 } else if (seleccion == 4) {
                     procesarColaPedidos();
                 } else if (seleccion == 5) {
-                    salir = true;
-                    System.out.println("Hasta prontooooo");
+                    leerHistorialVentas();
                 } else if (seleccion == 6) {
                     mostrarEstadisticas();
+                } else if (seleccion == 7) {
+                    salir = true;
+                    guardarDatosBinarios();
+                    System.out.println("Hasta prontooooo");
                 } else {
                     System.out.println("Opción incorrecta, elige un número del 1 al 6.");
                 }
@@ -132,7 +151,7 @@ public class SistemaTicketing {
             } else {
                 for (Sesion s : e.getSesiones()) {
                     // decimos a la fecha de la sesión que se formatee usando nuestro molde
-                    String fechaTexto = s.getFechaHora().format(formatoBonito);
+                    String fechaTexto = s.getFechaHora().format(FORMATO_FECHA);
 
                     // Imprimimos el texto ya formateado
                     System.out.println("  -> Sesión: " + s.getIdSesion() + " | Fecha: " + fechaTexto);
@@ -244,9 +263,10 @@ public class SistemaTicketing {
                     System.out.println("Asiento " + idAsiento + " añadido. Precio: " + precioFinal + " euros");
 
                 } catch (AsientoNoDisponibleException ex) {
-                    //Si falla cualquier cosa arriba, el programa cae aquí y no se cuelga
+                    // Si falla cualquier cosa arriba, el programa cae aquí y no se cuelga
                     System.out.println("Error " + ex.getMessage());
-                    i--; // Restamos 1 al contador para no perder la entrada y que el usuario vuelva a intentarlo
+                    i--; // Restamos 1 al contador para no perder la entrada y que el usuario vuelva a
+                         // intentarlo
                 }
             }
         }
@@ -457,31 +477,33 @@ public class SistemaTicketing {
     public void guardarPedidoEnFichero(Pedido pedido) {
         try {
             // carpeta que queremos usar
-            java.io.File directorio = new java.io.File("src/registroEntradas");
+            File directorio = new File("src/registroEntradas");
             // Si la carpeta NO existe, le decimos a Java que la fabrique
             if (!directorio.exists()) {
                 directorio.mkdirs();
             }
 
             // 3. Ahora guardamos el archivo indicando la ruta: "carpeta/archivo.txt"
-            java.io.FileWriter fw = new java.io.FileWriter("src/registroEntradas/RegistroVentas.txt", true);
-            java.io.PrintWriter pw = new java.io.PrintWriter(fw);
+            FileWriter writer = new FileWriter("src/registroEntradas/RegistroVentas.txt", true);
 
             // Redactamos el documento
-            pw.println("=== NUEVO TICKET DE VENTA ===");
-            pw.println("Fecha de proceso: " + java.time.LocalDateTime.now());
-            pw.println("Datos del pedido:");
-            pw.println(pedido.toString());
-            pw.println("=============================\n");
+            writer.write("\n === NUEVO TICKET DE VENTA === \n");
+
+            String fechaFormateada = LocalDateTime.now().format(FORMATO_FECHA);
+            writer.write("Fecha de proceso: " + fechaFormateada + "\n");
+
+            writer.write("Datos del pedido: \n");
+            writer.write(pedido.toString() + "\n");
+            writer.write("=============================\n");
 
             // Cerramos el archivo
-            pw.close();
+            writer.close();
 
             System.out.println("Pedido guardado físicamente en 'registroEntradas/RegistroVentas.txt'");
 
-        } catch (java.io.IOException e) {
-            System.out.println("No se ha podido escribir en el disco duro.");
-            System.out.println("Motivo: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error al escribir el archivo de ventas");
+            e.printStackTrace();
         }
     }
 
@@ -491,7 +513,7 @@ public class SistemaTicketing {
         int pedidosProcesados = 0;
 
         // Apuntamos al archivo que tu Opción 4 genera
-        java.io.File archivo = new java.io.File("src/registroEntradas/RegistroVentas.txt");
+        File archivo = new File("src/registroEntradas/RegistroVentas.txt");
 
         if (!archivo.exists()) {
             System.out.println("Todavía no hay ventas registradas o el archivo no existe.");
@@ -499,15 +521,19 @@ public class SistemaTicketing {
         }
 
         // Usamos Scanner para leer el archivo
-        try (java.util.Scanner lector = new java.util.Scanner(archivo)) {
-            while (lector.hasNextLine()) {
-                String linea = lector.nextLine();
+        try {
+
+            BufferedReader reader = new BufferedReader(new FileReader(archivo));
+            String linea;
+
+            while ((linea = reader.readLine()) != null) {
 
                 // Buscamos la línea que tiene el resumen del pedido
                 if (linea.contains("Total: ")) {
                     try {
                         int inicio = linea.indexOf("Total: ") + 7;
                         int fin = linea.indexOf("euros");
+
                         String cifraTexto = linea.substring(inicio, fin).trim();
 
                         totalRecaudado += Double.parseDouble(cifraTexto);
@@ -517,12 +543,92 @@ public class SistemaTicketing {
                     }
                 }
             }
+            reader.close();
             System.out.println("Dinero recaudado: " + totalRecaudado + " euros");
             System.out.println("Total de pedidos procesados: " + pedidosProcesados);
             System.out.println("---------------------------------");
 
-        } catch (java.io.FileNotFoundException e) {
+        } catch (IOException e) {
             System.out.println("Error al abrir el archivo de ventas.");
+            e.printStackTrace();
         }
     }
+
+    public static void leerHistorialVentas() {
+        System.out.println("\n--- HISTORIAL COMPLETO DE VENTAS ---");
+
+        // instanciamos el log
+        File archivo = new File("src/registroEntradas/RegistroVentas.txt");
+
+        // Si nadie ha comprado nada aún, avisamos y salimos
+        if (!archivo.exists()) {
+            System.out.println("Todavía no hay ventas registradas.");
+            return;
+        }
+
+        try {
+            // usamos buffer reader para leer el archivo
+            BufferedReader reader = new BufferedReader(new FileReader(archivo));
+            String linea;
+
+            // Leemos línea a línea hasta que se acabe el texto y devuelva null
+            while ((linea = reader.readLine()) != null) {
+                System.out.println(linea); // Imprimimos cada línea tal cual está en el .txt
+            }
+
+            // Cerramos el grifo de lectura
+            reader.close();
+            System.out.println("--- FIN DEL HISTORIAL ---\n");
+
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo de ventas.");
+            e.printStackTrace();
+        }
+    }
+
+    public void guardarDatosBinarios() {
+        try {
+            // el archivo "datos.dat" en la carpeta src
+            FileOutputStream fos = new FileOutputStream("src/datos.dat");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+            // la lista entera de eventos dentro de oos
+            oos.writeObject(this.catalogo);
+
+            oos.close();
+            System.out.println("Estado del programa guardado correctamente en 'datos.dat'.");
+
+        } catch (Exception e) {
+            System.out.println("Error al guardar los datos binarios.");
+            e.printStackTrace();
+        }
+    }
+
+    public void cargarDatosBinarios() {
+        File archivo = new File("src/datos.dat");
+
+        // Si el archivo NO existe, significa que es la primera vez que abres el programa
+        if (!archivo.exists()) {
+            System.out.println("No hay datos guardados. Se creará un catálogo vacío.");
+            this.inicializarDatos();
+            return;
+        }
+
+        try {
+            // Si el archivo SÍ existe, lo lee
+            FileInputStream fis = new FileInputStream(archivo);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+
+            // Carga la lista y machaca el catálogo vacío con los datos reales
+            this.catalogo = (ArrayList<Evento>) ois.readObject();
+
+            ois.close();
+            System.out.println("Datos cargados con éxito. Eventos recuperados: " + this.catalogo.size());
+
+        } catch (Exception e) {
+            System.out.println("Error al cargar los datos binarios.");
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -1,8 +1,10 @@
 package modelo;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public abstract class Evento implements Vendible {
+
+public abstract class Evento implements Vendible, Serializable{
 
     // Contador global para todos los eventos.
     private static int contadorEventos = 1;

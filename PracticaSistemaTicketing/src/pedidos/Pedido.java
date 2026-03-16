@@ -38,7 +38,7 @@ public class Pedido {
     @Override
     public String toString() {
         return "PEDIDO: " + idPedido + ",  Estado: " + estado + 
-               ", Total: " + total + "euros, Nº Entradas: " + entradas.size();
+               ", Total: " + total + " euros, Nº Entradas: " + entradas.size();
     }
 
     public String getIdPedido() { 

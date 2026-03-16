@@ -1,6 +1,8 @@
 package modelo;
 
-public class Teatro extends Evento {
+import java.io.Serializable;
+
+public class Teatro extends Evento implements Serializable{
 
     private boolean diaEspectador;
     private boolean descuentoEstudiante;

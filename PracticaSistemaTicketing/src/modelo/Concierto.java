@@ -1,6 +1,8 @@
 package modelo;
 
-public class Concierto extends Evento {
+import java.io.Serializable;
+
+public class Concierto extends Evento implements Serializable{
 
     private boolean artistaTop;
     private boolean zonaVip;

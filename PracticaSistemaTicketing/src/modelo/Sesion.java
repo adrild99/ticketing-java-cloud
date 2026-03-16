@@ -2,10 +2,12 @@ package modelo;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.io.Serializable;
+
 
 import excepciones.AsientoNoDisponibleException;
 
-public class Sesion {
+public class Sesion implements Serializable{
 
     private String idSesion;
     private LocalDateTime fechaHora;
