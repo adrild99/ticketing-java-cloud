@@ -1,26 +1,26 @@
-# Sistema de Ticketing Avanzado (Consola Java)
+# Advanced Ticketing System (Java Console)
 
-Gestión y venta de entradas de eventos (Conciertos y Teatro).
+Management and sale of event tickets (Concerts and Theater).
 
-## Características Principales Implementadas
+## Key Implemented Features
 
-### Arquitectura y Estructura de Datos
-* **Programación Orientada a Objetos (POO):** Uso de herencia (diferentes pasarelas de pago como Bizum, Tarjeta y PayPal), constructores y Enums (`EstadoPedido`, `ModoAforo`).
-* **Colecciones de Java:** * `ArrayList` para la gestión del catálogo de los eventos.
-  * `Queue` para el encolado y procesamiento de pedidos pendientes (FIFO).
-  * `Stack` para el historial de operaciones, permitiendo la opción de "Deshacer" compras y restaurar aforos automáticamente.
+### Architecture and Data Structures
+* **Object-Oriented Programming (OOP):** Use of inheritance (different payment gateways such as Bizum, Credit Card, and PayPal), constructors, and Enums (`OrderState`, `CapacityMode`).
+* **Java Collections:** * `ArrayList` for managing the event catalog.
+  * `Queue` for queuing and processing pending orders (FIFO).
+  * `Stack` for operation history, allowing the "Undo" option for purchases and automatic capacity restoration.
 
-### Seguridad y Control de Errores
-* **Gestión de Excepciones:** Control del menú principal y entradas numéricas mediante bloques `try-catch` para evitar cierres inesperados por `InputMismatchException`.
-* **Validación de Datos:** Clase de utilidad independiente (`Validador`) que verifica los datos antes de procesar pagos:
-  * **Bizum:** Formato de teléfono español válido com los 9 dígitos.
-  * **PayPal:** Formato estándar de correo electrónico.
-  * **Tarjeta:** 16 dígitos para el número de la tarjeta, control de caracteres en el titular, fecha de caducidad (MM/YY) y código CVV de 3 dígitos.
+### Security and Error Handling
+* **Exception Management:** Main menu and numerical input control through `try-catch` blocks to prevent unexpected crashes due to `InputMismatchException`.
+* **Data Validation:** Independent utility class (`Validator`) that verifies data before processing payments:
+  * **Bizum:** Valid 9-digit Spanish phone format.
+  * **PayPal:** Standard email format.
+  * **Credit Card:** 16-digit card number, character control for the cardholder name, expiration date (MM/YY), and 3-digit CVV code.
 
-### Persistencia de Datos
-* **Escritura:** Generación automática de tickets de venta en formato texto plano dentro de la ruta `src/registroEntradas/RegistroVentas.txt`, con creación automática de directorios si no existen.
-* **Lectura y Estadísticas:** Motor analítico que lee el fichero histórico en tiempo real, parsea los importes ignorando líneas corruptas (`FileNotFoundException`, `NumberFormatException`) y devuelve el balance total de ingresos y pedidos procesados.
+### Data Persistence
+* **Writing:** Automatic generation of sales tickets in plain text format within the path `src/registroEntradas/RegistroVentas.txt`, with automatic directory creation if they do not exist.
+* **Reading and Statistics:** Analytical engine that reads the historical file in real-time, parses amounts while ignoring corrupted lines (`FileNotFoundException`, `NumberFormatException`), and returns the total revenue balance and processed orders.
 
-### Experiencia de Usuario (UX)
-* Implementación de bucles `while(true)` para permitir reintentos infinitos en las pasarelas de pago sin perder los datos de la cesta.
-* Búsqueda de eventos y sesiones tolerante a fallos tipográficos mediante `.equalsIgnoreCase()`.
+### User Experience (UX)
+* Implementation of `while(true)` loops to allow infinite retries in payment gateways without losing shopping cart data.
+* Search for events and sessions tolerant of typographical errors using `.equalsIgnoreCase()`.
