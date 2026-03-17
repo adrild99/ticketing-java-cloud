@@ -370,10 +370,10 @@ public class SistemaTicketing {
             return;
         }
 
-        Pedido miPedido = new Pedido(miCarrito, pago);
+        Pedido miPedido = new Pedido(miCarrito, pago, eventoElegido.getNombre());
 
         Operacion op = new Operacion(TipoOperacion.COMPRA,
-                "Compra de " + cantidad + " entradas para " + eventoElegido.getNombre(), entradasCompradas);
+                "Compra de " + cantidad + " entradas para " + " (Ref: " + miPedido.getIdPedido() + ") " + eventoElegido.getNombre(), entradasCompradas);
         this.historial.push(op);
 
         this.colaPedidos.add(miPedido);
@@ -395,7 +395,7 @@ public class SistemaTicketing {
 
         ArrayList<Entrada> entradasDevueltas = ultima.getEntradasAfectadas();
 
-        // CHIVATO 1: Comprobar si la lista viene vacía
+        // Comprobar si la lista viene vacía
         if (entradasDevueltas == null || entradasDevueltas.isEmpty()) {
             System.out.println("La lista de entradas de la operación está vacía o es nula.");
         } else {
@@ -412,14 +412,14 @@ public class SistemaTicketing {
                 }
             }
 
-            // CHIVATO 2: Comprobar si encontró el evento
+            // Comprobar si encontró el evento
             if (evento == null) {
                 System.out.println("¡No se encontró el evento en el catálogo!");
             } else {
                 System.out.println("Evento encontrado. El ID de la Sesión es: " + primeraEntrada.getIdSesion());
                 Sesion sesion = evento.getSesionById(primeraEntrada.getIdSesion());
 
-                // CHIVATO 3: Comprobar si encontró la sesión
+                // Comprobar si encontró la sesión
                 if (sesion == null) {
                     System.out.println("¡No se encontró la sesión dentro del evento!");
                 } else {
@@ -438,11 +438,23 @@ public class SistemaTicketing {
             }
         }
 
-        if (this.colaPedidos instanceof java.util.LinkedList) {
+        boolean estabaEnCola = false;
+
+        //Comprobamos si la cola no está vacía 
+        if (!this.colaPedidos.isEmpty() && this.colaPedidos instanceof java.util.LinkedList) {
+            // Lo borramos de la cola de pendientes
             ((java.util.LinkedList<pedidos.Pedido>) this.colaPedidos).removeLast();
-            System.out.println("El pedido ha sido cancelado y eliminado de la cola.");
+            estabaEnCola = true;
+            System.out.println("El pedido se ha borrado de la cola antes de ser procesado");
+        }
+
+        // Por tanto, el dinero ya sumó en el .txt y hay que hacer un ticket negativo.
+        if (estabaEnCola == false) {
+            guardarDevolucionEnFichero(ultima);
+            System.out.println("El pedido ya estaba procesado. Se ha generado un comprobante de DEVOLUCIÓN en el archivo físico.");
         }
     }
+    
 
     public void procesarColaPedidos() {
         System.out.println("\n--- PROCESANDO COLA DE PEDIDOS ---");
@@ -486,11 +498,15 @@ public class SistemaTicketing {
             // 3. Ahora guardamos el archivo indicando la ruta: "carpeta/archivo.txt"
             FileWriter writer = new FileWriter("src/registroEntradas/RegistroVentas.txt", true);
 
+            String tipoPago = pedido.getPago().getClass().getSimpleName().replace("Pago", "");
+
             // Redactamos el documento
             writer.write("\n === NUEVO TICKET DE VENTA === \n");
 
             String fechaFormateada = LocalDateTime.now().format(FORMATO_FECHA);
             writer.write("Fecha de proceso: " + fechaFormateada + "\n");
+
+            writer.write("Método de pago: " + tipoPago + "\n");
 
             writer.write("Datos del pedido: \n");
             writer.write(pedido.toString() + "\n");
@@ -520,7 +536,6 @@ public class SistemaTicketing {
             return;
         }
 
-        // Usamos Scanner para leer el archivo
         try {
 
             BufferedReader reader = new BufferedReader(new FileReader(archivo));
@@ -607,7 +622,8 @@ public class SistemaTicketing {
     public void cargarDatosBinarios() {
         File archivo = new File("src/datos.dat");
 
-        // Si el archivo NO existe, significa que es la primera vez que abres el programa
+        // Si el archivo no existe, significa que es la primera vez que abres el
+        // programa
         if (!archivo.exists()) {
             System.out.println("No hay datos guardados. Se creará un catálogo vacío.");
             this.inicializarDatos();
@@ -627,6 +643,45 @@ public class SistemaTicketing {
 
         } catch (Exception e) {
             System.out.println("Error al cargar los datos binarios.");
+            e.printStackTrace();
+        }
+    }
+
+    public void guardarDevolucionEnFichero(Operacion op) {
+        try {
+            File directorio = new File("src/registroEntradas");
+            if (!directorio.exists()) {
+                directorio.mkdirs();
+            }
+
+            // Abrimos en modo "true"
+            FileWriter writer = new FileWriter("src/registroEntradas/RegistroVentas.txt", true);
+
+            writer.write("\n === TICKET DE DEVOLUCIÓN === \n");
+            String fechaFormateada = LocalDateTime.now().format(FORMATO_FECHA);
+            writer.write("Fecha de proceso: " + fechaFormateada + "\n");
+            writer.write("Operación deshecha: " + op.getDetalle() + "\n");
+
+            if (op.getEntradasAfectadas() != null && !op.getEntradasAfectadas().isEmpty()) {
+            pedidos.Entrada primera = op.getEntradasAfectadas().get(0);
+            writer.write("Evento ID: " + primera.getIdEvento() + " | Sesión ID: " + primera.getIdSesion() + "\n");
+        }
+
+            // Calculamos cuánto dinero hay que devolver sumando las entradas afectadas
+            double totalDevuelto = 0;
+            for (pedidos.Entrada e : op.getEntradasAfectadas()) {
+                totalDevuelto += e.getPrecioFinal();
+            }
+
+            writer.write("Estado: CANCELADO / REEMBOLSADO\n");
+
+            writer.write("Total: -" + totalDevuelto + " euros\n");
+            writer.write("=============================\n");
+
+            writer.close();
+
+        } catch (IOException e) {
+            System.out.println("Error al escribir el ticket de devolución en el historial físico.");
             e.printStackTrace();
         }
     }

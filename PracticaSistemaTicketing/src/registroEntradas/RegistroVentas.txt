@@ -1,6 +1,16 @@
 
  === NUEVO TICKET DE VENTA === 
-Fecha de proceso: 16/03/2026 a las 20:32:35
+Fecha de proceso: 17/03/2026 a las 17:36:02
+Método de pago: Bizum
 Datos del pedido: 
-PEDIDO: PED-001,  Estado: PROCESADO, Total: 20.0 euros, Nº Entradas: 1
+PEDIDO: PED-514665, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Festival Rock Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 17/03/2026 a las 17:36:14
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-514665) Festival Rock
+Evento ID: EV-01 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -26.0 euros
 =============================
