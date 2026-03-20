@@ -40,4 +40,18 @@ public class Validador {
         // Luego pide 8 números y una letra válida de DNI, O empieza por X, Y, Z (NIE)
         return java.util.regex.Pattern.matches("(?i)^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$|^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$", dni);
     }
+    // 🎟️ Validación de ID de Evento (Permite "1", "01", "ev-01", "EV-01")
+    public static boolean esIdEventoValido(String id) {
+        // (?i) ignora mayúsculas/minúsculas. 
+        // \\s* permite espacios accidentales.
+        // (EV-)? hace que escribir "EV-" sea totalmente OPCIONAL.
+        // \\d{1,2} exige 1 o 2 números.
+        return Pattern.matches("(?i)^\\s*(EV-)?\\d{1,2}\\s*$", id);
+    }
+
+    // 🕒 Validación de ID de Sesión (Permite "1", "01", "ses-01", "SES-1")
+    public static boolean esIdSesionValido(String id) {
+        // Igual que el evento: "SES-" es opcional y acepta 1 o 2 dígitos.
+        return Pattern.matches("(?i)^\\s*(SES-)?\\d{1,2}\\s*$", id);
+    }
 }

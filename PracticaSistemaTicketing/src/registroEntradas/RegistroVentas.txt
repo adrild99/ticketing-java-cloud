@@ -38,3 +38,19 @@ Evento ID: EV-03 | Sesión ID: SES-02
 Estado: CANCELADO / REEMBOLSADO
 Total: -36.0 euros
 =============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 10:56:47
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-284221, Estado: PROCESADO, Total: 52.0 euros, Nº Entradas: 2
+Evento: Festival Rock Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 10:56:47
+Operación deshecha: Compra de 2 entradas para  (Ref: PED-284221) Festival Rock
+Evento ID: EV-01 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -52.0 euros
+=============================

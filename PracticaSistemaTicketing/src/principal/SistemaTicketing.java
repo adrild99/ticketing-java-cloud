@@ -165,30 +165,60 @@ public class SistemaTicketing {
 
         verCatalogo();
 
-        System.out.print("\nEscribe el ID del evento que quieres (ej. EV-01): ");
-        String idEvento = sc.nextLine();
-
+        // --- 1. PEDIR Y VALIDAR EL EVENTO ---
         Evento eventoElegido = null;
-        for (Evento e : this.catalogo) {
-            if (e.getId().equalsIgnoreCase(idEvento)) {
-                eventoElegido = e;
-                break;
+        while (true) {
+            System.out.print("\nEscribe el ID del evento que quieres (ej. 1, 01, EV-01): ");
+            String inputEvento = sc.nextLine();
+
+            if (utilidades.Validador.esIdEventoValido(inputEvento)) {
+                // Limpiamos y formateamos la entrada
+                String soloNumeros = inputEvento.replaceAll("[^0-9]", "");
+                int numeroEvento = Integer.parseInt(soloNumeros);
+                String idOficialEvento = String.format("EV-%02d", numeroEvento);
+
+                // Buscamos en el catálogo
+                for (Evento e : this.catalogo) {
+                    if (e.getId().equalsIgnoreCase(idOficialEvento)) {
+                        eventoElegido = e;
+                        break;
+                    }
+                }
+
+                if (eventoElegido != null) {
+                    break; // Evento encontrado, salimos del bucle
+                } else {
+                    System.out.println(
+                            "El evento " + idOficialEvento + " no existe en el catálogo. Inténtalo de nuevo.");
+                }
+            } else {
+                System.out.println("Formato incorrecto. Escribe solo el número o usa EV-XX.");
             }
         }
 
-        if (eventoElegido == null) {
-            System.out.println("Error, el evento no se encuentra.");
-            return;
-        }
+        // --- 2. PEDIR Y VALIDAR LA SESIÓN ---
+        Sesion sesionElegida = null;
+        while (true) {
+            System.out.print("Escribe el ID de la sesión (ej. 1, 01, SES-01): ");
+            String inputSesion = sc.nextLine();
 
-        System.out.print("Escribe el ID de la sesión (ej. SES-01): ");
-        String idSesion = sc.nextLine();
+            if (utilidades.Validador.esIdSesionValido(inputSesion)) {
+                // Limpiamos y formateamos la entrada
+                String soloNumeros = inputSesion.replaceAll("[^0-9]", "");
+                int numeroSesion = Integer.parseInt(soloNumeros);
+                String idOficialSesion = String.format("SES-%02d", numeroSesion);
 
-        Sesion sesionElegida = eventoElegido.getSesionById(idSesion);
+                sesionElegida = eventoElegido.getSesionById(idOficialSesion);
 
-        if (sesionElegida == null) {
-            System.out.println("Error, la sesión no se encuentra.");
-            return;
+                if (sesionElegida != null) {
+                    break; // Sesión encontrada, salimos del bucle
+                } else {
+                    System.out.println(
+                            "La sesión " + idOficialSesion + " no existe para este evento. Inténtalo de nuevo.");
+                }
+            } else {
+                System.out.println("Formato incorrecto. Escribe solo el número o usa SES-XX.");
+            }
         }
 
         System.out.print("¿Cuántas entradas quieres comprar?: ");
@@ -373,7 +403,9 @@ public class SistemaTicketing {
         Pedido miPedido = new Pedido(miCarrito, pago, eventoElegido.getNombre());
 
         Operacion op = new Operacion(TipoOperacion.COMPRA,
-                "Compra de " + cantidad + " entradas para " + " (Ref: " + miPedido.getIdPedido() + ") " + eventoElegido.getNombre(), entradasCompradas);
+                "Compra de " + cantidad + " entradas para " + " (Ref: " + miPedido.getIdPedido() + ") "
+                        + eventoElegido.getNombre(),
+                entradasCompradas);
         this.historial.push(op);
 
         this.colaPedidos.add(miPedido);
@@ -440,7 +472,7 @@ public class SistemaTicketing {
 
         boolean estabaEnCola = false;
 
-        //Comprobamos si la cola no está vacía 
+        // Comprobamos si la cola no está vacía
         if (!this.colaPedidos.isEmpty() && this.colaPedidos instanceof java.util.LinkedList) {
             // Lo borramos de la cola de pendientes
             ((java.util.LinkedList<pedidos.Pedido>) this.colaPedidos).removeLast();
@@ -451,10 +483,10 @@ public class SistemaTicketing {
         // Por tanto, el dinero ya sumó en el .txt y hay que hacer un ticket negativo.
         if (estabaEnCola == false) {
             guardarDevolucionEnFichero(ultima);
-            System.out.println("El pedido ya estaba procesado. Se ha generado un comprobante de DEVOLUCIÓN en el archivo físico.");
+            System.out.println(
+                    "El pedido ya estaba procesado. Se ha generado un comprobante de DEVOLUCIÓN en el archivo físico.");
         }
     }
-    
 
     public void procesarColaPedidos() {
         System.out.println("\n--- PROCESANDO COLA DE PEDIDOS ---");
@@ -496,7 +528,8 @@ public class SistemaTicketing {
             }
 
             // 3. Ahora guardamos el archivo indicando la ruta: "carpeta/archivo.txt"
-            FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt", true);
+            FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt",
+                    true);
 
             String tipoPago = pedido.getPago().getClass().getSimpleName().replace("Pago", "");
 
@@ -655,7 +688,8 @@ public class SistemaTicketing {
             }
 
             // Abrimos en modo "true"
-            FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt", true);
+            FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt",
+                    true);
 
             writer.write("\n === TICKET DE DEVOLUCIÓN === \n");
             String fechaFormateada = LocalDateTime.now().format(FORMATO_FECHA);
@@ -663,9 +697,9 @@ public class SistemaTicketing {
             writer.write("Operación deshecha: " + op.getDetalle() + "\n");
 
             if (op.getEntradasAfectadas() != null && !op.getEntradasAfectadas().isEmpty()) {
-            pedidos.Entrada primera = op.getEntradasAfectadas().get(0);
-            writer.write("Evento ID: " + primera.getIdEvento() + " | Sesión ID: " + primera.getIdSesion() + "\n");
-        }
+                pedidos.Entrada primera = op.getEntradasAfectadas().get(0);
+                writer.write("Evento ID: " + primera.getIdEvento() + " | Sesión ID: " + primera.getIdSesion() + "\n");
+            }
 
             // Calculamos cuánto dinero hay que devolver sumando las entradas afectadas
             double totalDevuelto = 0;
