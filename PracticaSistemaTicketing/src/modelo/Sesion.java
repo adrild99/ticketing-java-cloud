@@ -2,57 +2,59 @@ package modelo;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.io.Serializable;
-
 
 import excepciones.AsientoNoDisponibleException;
 
-public class Sesion implements Serializable{
+
+public class Sesion {
 
     private String idSesion;
     private LocalDateTime fechaHora;
     private int aforoTotal;
     private int aforoDisponible;
-    private ModoAforo modo; // es como Categoria en evento
+    private ModoAforo modo;
 
     private ArrayList<Asiento> asientos = new ArrayList<>();
 
     public Sesion(LocalDateTime fechaHora, int aforoTotal, int aforoDisponible, ModoAforo modo) {
-
         this.fechaHora = fechaHora;
         this.aforoTotal = aforoTotal;
         this.aforoDisponible = aforoDisponible;
         this.modo = modo;
-        this.asientos = new ArrayList<>();
+
+        // Inicializamos los asientos solo si es numerado
         if (modo == ModoAforo.NUMERADO) {
             for (int i = 1; i <= aforoTotal; i++) {
-                Zona zonaAsiento = (i <= 10) ? Zona.VIP : Zona.NORMAL; // Los 10 primeros son VIP
+                Zona zonaAsiento = (i <= 10) ? Zona.VIP : Zona.NORMAL;
                 this.asientos.add(new Asiento(i + "", zonaAsiento));
             }
         }
     }
 
+    public int getAforoDisponible() {
+        return this.aforoDisponible;
+    }
+
+    public void setAforoDisponible(int aforoDisponible) {
+        this.aforoDisponible = aforoDisponible;
+    }
+
     public boolean hayDisponibilidad(int cantidad) {
-        if (this.aforoDisponible >= cantidad) {
-            return true;
-        } else {
-            return false;
-        }
-        // Sería igual que poner:
-        // return this.aforoDisponible >= cantidad;
+        return this.aforoDisponible >= cantidad;
     }
 
     public void reservarGeneral(int cantidad) {
-        this.aforoDisponible = this.aforoDisponible - cantidad; // quitamos la cantidad de entradas que se hayan
-                                                                // comprado
+        this.aforoDisponible = this.aforoDisponible - cantidad;
     }
 
     public void liberarGeneral(int cantidad) {
-        this.aforoDisponible = this.aforoDisponible + cantidad; // Devolvemos la cantidad de entradas que se devuelven
+        this.aforoDisponible = this.aforoDisponible + cantidad;
+        if (this.aforoDisponible > this.aforoTotal) { //estoe s para que el disponible nunca sea mayor que el total
+            this.aforoDisponible = this.aforoTotal;
+        }
     }
 
     public ArrayList<Asiento> reservarAsientos(int cantidad) {
-
         if (this.aforoDisponible < cantidad) {
             return null;
         }
@@ -73,13 +75,17 @@ public class Sesion implements Serializable{
     }
 
     public void liberarAsientos(ArrayList<Asiento> asientosLiberar) {
-        for (Asiento asiento : asientosLiberar) {// Recorremos los asientos que el cliente quiere devolver
-            asiento.setReservado(false); // Los volvemos a poner como libres
+        for (Asiento asiento : asientosLiberar) {
+            asiento.setReservado(false); 
         }
         this.aforoDisponible = this.aforoDisponible + asientosLiberar.size();
+        
+        // Si al devolver nos pasamos del máximo, lo topamos al máximo
+        if (this.aforoDisponible > this.aforoTotal) {
+            this.aforoDisponible = this.aforoTotal;
+        }
     }
 
-    // mostrar qué hay libre
     public void mostrarAsientosLibres() {
         System.out.println("\n--- PLANO DE LA SALA (Leyenda: [V]=VIP, [N]=Normal, [XX]=Ocupado) ---");
         int contador = 0;
@@ -88,18 +94,15 @@ public class Sesion implements Serializable{
             String leyenda;
 
             if (a.getReservado()) {
-                leyenda = "[ XX ]"; // Asiento ocupado
+                leyenda = "[ XX ]";
             } else {
-                // Si está libre, mostramos el ID y una letra para la zona
                 String letraZona = (a.getZona() == Zona.VIP) ? "V" : "N";
-                // Formateamos para que el ID siempre ocupe 2 espacios (ej: "01", "10")
                 leyenda = String.format("[%s-%2s]", letraZona, a.getIdAsiento());
             }
 
             System.out.print(leyenda + " ");
             contador++;
 
-            // Salto de línea cada 10 asientos para formar la matriz
             if (contador % 10 == 0) {
                 System.out.println();
             }
@@ -107,14 +110,12 @@ public class Sesion implements Serializable{
         System.out.println("-------------------------------------------------------------------\n");
     }
 
-    // Método para buscar el objeto Asiento por su nombre (ID)
     public Asiento buscarAsientoPorId(String id) throws AsientoNoDisponibleException {
         for (Asiento a : this.asientos) {
             if (a.getIdAsiento().equalsIgnoreCase(id)) {
                 return a;
             }
         }
-        // Si no lo encuentra
         throw new AsientoNoDisponibleException(id);
     }
 
@@ -136,7 +137,6 @@ public class Sesion implements Serializable{
 
     public void setAforoTotal(int aforoTotal) {
         this.aforoTotal = aforoTotal;
-
     }
 
     public int getAforoTotal() {

@@ -54,3 +54,171 @@ Evento ID: EV-01 | Sesión ID: SES-01
 Estado: CANCELADO / REEMBOLSADO
 Total: -52.0 euros
 =============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 12:29:39
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-F48D34, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Festival Rock Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 12:30:13
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-F48D34) Festival Rock
+Evento ID: EV-01 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -26.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 13:07:06
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-865E9A, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Concierto de Rock Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 13:13:04
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-2EB6CB, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Concierto de Rock Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 13:13:05
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-2EB6CB) Concierto de Rock
+Evento ID: EV-01 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -26.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 13:16:51
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-C48356, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Concierto de Rock Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 13:16:52
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-C48356) Concierto de Rock
+Evento ID: EV-01 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -26.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 13:21:01
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-96085F, Estado: PROCESADO, Total: 80.0 euros, Nº Entradas: 3
+Evento: Dune: Parte 3 Evento ID: EV-12 | Sesión ID: SES-03
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 13:26:56
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-B047F0, Estado: PROCESADO, Total: 52.0 euros, Nº Entradas: 2
+Evento: Gira Mundial Rosalia Evento ID: EV-04 | Sesión ID: SES-02
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 13:27:08
+Operación deshecha: Compra de 2 entradas para  (Ref: PED-B047F0) Gira Mundial Rosalia
+Evento ID: EV-04 | Sesión ID: SES-02
+Estado: CANCELADO / REEMBOLSADO
+Total: -52.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 13:39:36
+Método de pago: PayPal
+Datos del pedido: 
+PEDIDO: PED-6B9D38, Estado: PROCESADO, Total: 40.0 euros, Nº Entradas: 2
+Evento: Interstellar (Reestreno) Evento ID: EV-08 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 13:39:38
+Operación deshecha: Compra de 2 entradas para  (Ref: PED-6B9D38) Interstellar (Reestreno)
+Evento ID: EV-08 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -40.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 13:47:48
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-EB6D69, Estado: PROCESADO, Total: 30.0 euros, Nº Entradas: 1
+Evento: Interstellar (Reestreno) Evento ID: EV-08 | Sesión ID: SES-01
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 13:48:11
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-5E5264, Estado: PROCESADO, Total: 30.0 euros, Nº Entradas: 1
+Evento: Interstellar (Reestreno) Evento ID: EV-08 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 13:48:13
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-5E5264) Interstellar (Reestreno)
+Evento ID: EV-08 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -30.0 euros
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 13:48:21
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-EB6D69) Interstellar (Reestreno)
+Evento ID: EV-08 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -30.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 14:01:39
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-FB36AA, Estado: PROCESADO, Total: 30.0 euros, Nº Entradas: 1
+Evento: Interstellar (Reestreno) Evento ID: EV-08 | Sesión ID: SES-01
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 14:17:37
+Método de pago: Tarjeta
+Datos del pedido: 
+PEDIDO: PED-6E2D8E, Estado: PROCESADO, Total: 130.0 euros, Nº Entradas: 5
+Evento: Gira Mundial AC/DC Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 14:17:51
+Operación deshecha: Compra de 5 entradas para  (Ref: PED-6E2D8E) Gira Mundial AC/DC
+Evento ID: EV-01 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -130.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 14:19:15
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-75D8F3, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Gira Mundial AC/DC Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 14:19:42
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-75D8F3) Gira Mundial AC/DC
+Evento ID: EV-01 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -26.0 euros
+=============================

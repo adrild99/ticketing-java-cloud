@@ -53,7 +53,7 @@ public abstract class Evento implements Vendible, Serializable{
 
     @Override
     public String toString() {
-        return "[" + id + "] " + nombre + " en " + lugar + " (" + categoria + ")";
+        return "\n [" + id + "] " + nombre + " en " + lugar + " (" + categoria + ")";
     }
 
     public String getId() {

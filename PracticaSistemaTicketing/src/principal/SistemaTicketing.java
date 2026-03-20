@@ -54,7 +54,7 @@ public class SistemaTicketing {
 
     public static void main(String[] args) {
         SistemaTicketing sistema = new SistemaTicketing();
-        sistema.cargarDatosBinarios();
+        sistema.cargarDatosDesdeNube();
         sistema.menu();
     }
 
@@ -103,32 +103,39 @@ public class SistemaTicketing {
 
             try {
                 int seleccion = sc.nextInt();
-                sc.nextLine();
+                sc.nextLine(); // Limpiar el buffer
 
-                if (seleccion == 1) {
-                    verCatalogo();
-                } else if (seleccion == 2) {
-                    iniciarCompra();
-                } else if (seleccion == 3) {
-                    deshacerUltimaOperacion();
-                } else if (seleccion == 4) {
-                    procesarColaPedidos();
-                } else if (seleccion == 5) {
-                    leerHistorialVentas();
-                } else if (seleccion == 6) {
-                    mostrarEstadisticas();
-                } else if (seleccion == 7) {
-                    salir = true;
-                    guardarDatosBinarios();
-                    System.out.println("Hasta prontooooo");
-                } else {
-                    System.out.println("Opción incorrecta, elige un número del 1 al 6.");
+                switch (seleccion) {
+                    case 1:
+                        verCatalogo();
+                        break;
+                    case 2:
+                        iniciarCompra();
+                        break;
+                    case 3:
+                        deshacerUltimaOperacion();
+                        break;
+                    case 4:
+                        procesarColaPedidos();
+                        break;
+                    case 5:
+                        leerHistorialVentas();
+                        break;
+                    case 6:
+                        mostrarEstadisticas();
+                        break;
+                    case 7:
+                        salir = true;
+                        System.out.println("Hasta prontoooooo");
+                        break;
+                    default:
+                        System.out.println("Opción incorrecta, elige un número del 1 al 7.");
+                        break;
                 }
 
             } catch (java.util.InputMismatchException e) {
-                // Si salta el error de que no es un número, caemos aquí
                 System.out.println("Error: Debes introducir un NÚMERO, no letras.\n");
-                sc.nextLine();
+                sc.nextLine(); // Limpiar el buffer tras el error
             }
         }
     }
@@ -154,7 +161,8 @@ public class SistemaTicketing {
                     String fechaTexto = s.getFechaHora().format(FORMATO_FECHA);
 
                     // Imprimimos el texto ya formateado
-                    System.out.println("  -> Sesión: " + s.getIdSesion() + " | Fecha: " + fechaTexto);
+                    System.out.println("  -> Sesión: " + s.getIdSesion() + " | Fecha: " + fechaTexto
+                            + " | Entradas libres: " + s.getAforoDisponible());
                 }
             }
         }
@@ -228,9 +236,9 @@ public class SistemaTicketing {
             cantidad = sc.nextInt();
             sc.nextLine();
         } catch (java.util.InputMismatchException e) {
-            System.out.println("Error: Debes introducir un número. Compra cancelada.");
-            sc.nextLine();
-            return;
+            System.out.println("Error: Debes introducir un número entero. Compra cancelada.");
+            sc.nextLine(); // Limpiar el buffer
+            return; // Salimos del método directamente, no hay nada que devolver a la nube aún
         }
 
         if (cantidad <= 0) {
@@ -255,6 +263,8 @@ public class SistemaTicketing {
 
         if (sesionElegida.getModo() == ModoAforo.GENERAL) {
             sesionElegida.reservarGeneral(cantidad);
+            actualizarAforoEnNube(sesionElegida);
+
             for (int i = 0; i < cantidad; i++) {
                 double precioFinal = precioBase * eventoElegido.getRecargoBase();
                 Entrada e = new Entrada(eventoElegido.getId(), sesionElegida.getIdSesion(), null, precioFinal);
@@ -295,10 +305,12 @@ public class SistemaTicketing {
                 } catch (AsientoNoDisponibleException ex) {
                     // Si falla cualquier cosa arriba, el programa cae aquí y no se cuelga
                     System.out.println("Error " + ex.getMessage());
-                    i--; // Restamos 1 al contador para no perder la entrada y que el usuario vuelva a
+                    i--; // disminuye 1 al contador para no perder la entrada y que el usuario vuelva a
                          // intentarlo
                 }
             }
+            sesionElegida.reservarGeneral(cantidad); // disminuye el número total del aforo en Java
+            actualizarAforoEnNube(sesionElegida);
         }
 
         System.out.println("Total a pagar: " + miCarrito.calcularTotal() + " EUROS");
@@ -326,6 +338,10 @@ public class SistemaTicketing {
             } else {
                 sesionElegida.liberarAsientos(asientosReservados);
             }
+
+            // Para que la baseddtos sepa que las entradas vuelven a estar libres
+            actualizarAforoEnNube(sesionElegida);
+
             return;
         }
 
@@ -397,6 +413,7 @@ public class SistemaTicketing {
             } else {
                 sesionElegida.liberarAsientos(asientosReservados);
             }
+            actualizarAforoEnNube(sesionElegida);
             return;
         }
 
@@ -457,12 +474,14 @@ public class SistemaTicketing {
                 } else {
                     if (sesion.getModo() == ModoAforo.GENERAL) {
                         sesion.liberarGeneral(entradasDevueltas.size());
+                        actualizarAforoEnNube(sesion); // actualiza en la nube de la db
                     } else {
                         ArrayList<Asiento> asientosDevueltos = new ArrayList<>();
                         for (Entrada e : entradasDevueltas) {
                             asientosDevueltos.add(e.getAsiento());
                         }
                         sesion.liberarAsientos(asientosDevueltos);
+                        actualizarAforoEnNube(sesion); // actualiza en la nube de la db
                     }
                     System.out
                             .println("Se ha restaurado el aforo: " + entradasDevueltas.size() + " asientos devueltos.");
@@ -716,6 +735,85 @@ public class SistemaTicketing {
 
         } catch (IOException e) {
             System.out.println("Error al escribir el ticket de devolución en el historial físico.");
+            e.printStackTrace();
+        }
+    }
+
+    public void cargarDatosDesdeNube() {
+        System.out.println("Conectando a Oracle Cloud para cargar el catálogo...");
+        this.catalogo.clear();
+
+        String sqlEventos = "SELECT * FROM EVENTOS";
+
+        try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
+                java.sql.Statement stmt = conn.createStatement();
+                java.sql.ResultSet rsEv = stmt.executeQuery(sqlEventos)) {
+
+            while (rsEv.next()) {
+                String id = rsEv.getString("id_evento");
+                String nombre = rsEv.getString("nombre");
+                String lugar = rsEv.getString("lugar");
+                String tipo = rsEv.getString("tipo");
+
+                // Creamos el objeto según el tipo (como tu inicializarDatos)
+                Evento ev;
+                if ("MUSICA".equalsIgnoreCase(tipo) || "CONCIERTO".equalsIgnoreCase(tipo)) {
+                    ev = new Concierto(nombre, lugar, Categoria.CONCIERTO, true, false);
+                } else if ("TEATRO".equalsIgnoreCase(tipo)) {
+                    ev = new Teatro(nombre, lugar, Categoria.TEATRO, false, true);
+                } else {
+                    ev = new Cine(nombre, lugar, Categoria.CINE, false, false);
+                }
+
+                ev.setId(id); // Importante: mantenemos el ID de la base de datos
+
+                // CARGAMOS LAS SESIONES DE ESTE EVENTO
+                cargarSesionesDeEvento(ev, conn);
+
+                this.catalogo.add(ev);
+            }
+            System.out.println("Catálogo cargado: " + this.catalogo.size() + " eventos recuperados.");
+
+        } catch (java.sql.SQLException e) {
+            System.out.println("Error al cargar desde la nube. Usando datos de respaldo...");
+            e.printStackTrace();
+            this.inicializarDatos(); // Si falla la nube, cargamos los de prueba
+        }
+    }
+
+    private void cargarSesionesDeEvento(Evento ev, java.sql.Connection conn) throws java.sql.SQLException {
+        String sqlSes = "SELECT * FROM SESIONES WHERE id_evento = ?";
+        try (java.sql.PreparedStatement pstmt = conn.prepareStatement(sqlSes)) {
+            pstmt.setString(1, ev.getId());
+            java.sql.ResultSet rsSes = pstmt.executeQuery();
+
+            while (rsSes.next()) {
+                // Convertimos el Timestamp de Oracle a LocalDateTime de Java
+                java.time.LocalDateTime fecha = rsSes.getTimestamp("fecha_hora").toLocalDateTime();
+                int aforoMax = rsSes.getInt("aforo_maximo");
+                int aforoDisp = rsSes.getInt("aforo_disponible");
+
+                // Si el evento es un Concierto, es General. Si es Teatro o Cine, es Numerado.
+                ModoAforo modo = (ev instanceof Concierto) ? ModoAforo.GENERAL : ModoAforo.NUMERADO;
+                Sesion s = new Sesion(fecha, aforoMax, aforoDisp, modo);
+                s.setIdSesion(rsSes.getString("id_sesion"));
+
+                ev.addSesion(s);
+            }
+        }
+    }
+
+    private void actualizarAforoEnNube(Sesion s) {
+        String sql = "UPDATE SESIONES SET aforo_disponible = ? WHERE id_sesion = ?";
+        try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
+                java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, s.getAforoDisponible());
+            pstmt.setString(2, s.getIdSesion());
+            pstmt.executeUpdate();
+            System.out.println("Base de datos actualizada.");
+
+        } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
     }
