@@ -25,3 +25,9 @@ replay_pid*
 
 # Ignorar credenciales y Wallet de Oracle
 wallet/
+
+# Ignorar el archivo de contraseñas
+config.properties
+
+# Ignorar la carpeta del Wallet por seguridad
+wallet/

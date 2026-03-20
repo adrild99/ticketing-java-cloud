@@ -3,12 +3,24 @@ package utilidades;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-
 public class ConexionDB {
 
     public static Connection conectar() {
         try {
-            String rutaWallet = "C:/PlataformaTicketing/Ticketing/PracticaSistemaTicketing/wallet";
+            // 1. Cargamos el archivo de configuración secreto
+            java.util.Properties config = new java.util.Properties();
+            try (java.io.FileInputStream fis = new java.io.FileInputStream("config.properties")) {
+                config.load(fis);
+            } catch (Exception e) {
+                System.out.println("⚠️ Error: No se encuentra el archivo config.properties");
+                return null;
+            }
+
+            // 2. Extraemos los datos a variables
+            String rutaWallet = config.getProperty("db.wallet.path");
+            String url = config.getProperty("db.url");
+            String user = config.getProperty("db.user");
+            String password = config.getProperty("db.password");
 
             // Limpieza total de memoria de intentos previos
             System.clearProperty("oracle.net.tns_admin");
@@ -16,24 +28,17 @@ public class ConexionDB {
             System.clearProperty("javax.net.ssl.keyStore");
             System.clearProperty("javax.net.ssl.trustStore");
 
-            // URL 
-            String url = "jdbc:oracle:thin:@ydokx1ilqvdntkzr_high";
-
             // Propiedades mínimas
             java.util.Properties props = new java.util.Properties();
-            props.setProperty("user", "TICKETINGCLOUD");
-            props.setProperty("password", "Estudiante_2026_Db");
+            props.setProperty("user", user);
+            props.setProperty("password", password);
             props.setProperty("oracle.net.tns_admin", rutaWallet);
-            
 
             Connection conexion = java.sql.DriverManager.getConnection(url, props);
-
-            //System.out.println("CONEXIÓN TOTAL CON LA NUBE ESTABLECIDA!"); es una prueba por qué no sé por qué narices falla
             return conexion;
 
         } catch (Exception e) {
-            System.out.println("Error final:");
-            e.printStackTrace();
+            System.out.println("Error de conexión: " + e.getMessage());
             return null;
         }
     }
