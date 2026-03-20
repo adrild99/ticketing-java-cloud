@@ -1,28 +1,52 @@
-# Advanced Ticketing System (Java Console)
+#  Advanced Ticketing System (Java Cloud Edition)
 
-Management and sale of event tickets (Concerts and Theater).
+Professional ticket management and sales system for events (Concerts, Cinema, and Theater) featuring real-time cloud persistence.
 
-## Key Implemented Features
+---
 
-### Architecture and Data Structures
-* **Object-Oriented Programming (OOP):** Use of inheritance (different payment gateways such as Bizum, Credit Card, and PayPal), constructors, and Enums (`OrderState`, `CapacityMode`).
-* **Design Patterns & Formatting:** Use of global constants (`public static final`) for consistent date and time formatting across the application using `DateTimeFormatter`. Classes implement multiple interfaces simultaneously (e.g., `Vendible` and `Serializable`) to separate concerns.
-* **Java Collections:** * `ArrayList` for managing the event catalog.
-  * `Queue` for queuing and processing pending orders (FIFO).
-  * `Stack` for operation history, allowing the "Undo" option for purchases and automatic capacity restoration.
+## Recent Cloud Updates
 
-### Security and Error Handling
-* **Exception Management:** Main menu and numerical input control through `try-catch` blocks to prevent unexpected crashes due to `InputMismatchException`.
-* **Data Validation:** Independent utility class (`Validator`) that verifies data before processing payments:
-  * **Bizum:** Valid 9-digit Spanish phone format.
-  * **PayPal:** Standard email format.
-  * **Credit Card:** 16-digit card number, character control for the cardholder name, expiration date (MM/YY), and 3-digit CVV code.
+### Hybrid Data Architecture (Cloud + Local)
+* **Oracle Cloud Persistence:** Total migration from legacy binary files (`.dat`) to a relational **Oracle Autonomous Database**.
+* **Secure Connectivity (mTLS):** Implementation of JDBC connection via **Oracle Wallet**, ensuring end-to-end data encryption between the Java application and the cloud.
+* **Real-time Synchronization:** The system performs automatic inventory updates using SQL `UPDATE` and `SELECT` queries, ensuring capacity accuracy across multiple concurrent sessions.
 
-### Data Persistence
-* **Writing (Logs):** Automatic generation of sales tickets in plain text format within the path `src/registroEntradas/RegistroVentas.txt`, with automatic directory creation if they do not exist.
-* **Reading and Statistics:** Analytical engine that reads the historical file in real-time, parses amounts while ignoring corrupted lines (`FileNotFoundException`, `NumberFormatException`), and returns the total revenue balance and processed orders.
-* **Binary Serialization (State Management):** Preservation of the entire application state (catalog, modified capacities, and reservations) across different sessions. The system automatically loads and saves the objects using `ObjectOutputStream` and `ObjectInputStream` into a `datos.dat` file, curing volatile memory loss upon program restart.
+### 🏛️ Relational Database Modeling
+* **Composite Primary Keys:** Implementation of referential integrity through composite keys (`id_event` + `id_session`), allowing for an intuitive session numbering (1, 2, 3...) that is independent for each specific event.
+* **Capacity Shield Logic:** A security algorithm within the `Session` class that prevents "available capacity" from exceeding the "total capacity," protecting the database from data corruption during multi-step refunds.
 
-### User Experience (UX)
-* Implementation of `while(true)` loops to allow infinite retries in payment gateways without losing shopping cart data.
-* Search for events and sessions tolerant of typographical errors using `.equalsIgnoreCase()`.
+### 🛠️ Code Refactoring & Logic
+* **High-Performance Menu:** Transitioned from nested `if-else` structures to a `switch-case` control engine, significantly improving code readability and maintainability.
+* **Advanced Business Validation:** * **Credit Cards:** Logical expiration control (comparing MM/YY input against the system's `YearMonth` clock).
+    * **Emails:** Strict validation using Regular Expressions (Regex) to filter out invalid domain structures.
+
+---
+
+##  Core Features
+
+### OOP & Data Structures
+* **Polymorphism:** Inheritance-based payment gateways (`Bizum`, `CreditCard`, `PayPal`) with specific validation logic for each account type.
+* **Dynamic Collections:** * `ArrayList` for the event catalog retrieved from the cloud.
+    * `Queue` for FIFO (First-In-First-Out) processing of pending orders.
+    * `Stack` for operation history, enabling the **"Undo"** feature with automatic capacity restoration in both local memory and the Oracle database.
+
+### Security & Robustness
+* **Custom Exception Handling:** Implementation of specific exceptions like `AsientoNoDisponibleException` (SeatNotAvailable) for fine-grained flow control.
+* **Defensive Programming:** Numerical input validation via `try-catch` blocks and `Scanner.nextLine()` buffer clearing to prevent infinite loops on user input errors.
+
+### Logs & Auditing
+* **Local Ticketer:** Automatic generation of sales receipts in plain text at `src/registroEntradas/RegistroVentas.txt` as a physical backup for cloud transactions.
+* **Statistics Engine:** A real-time analyzer that parses the sales history to return total revenue balances and transaction volume.
+
+---
+
+## User Experience (UX)
+* **Interactive Seat Map:** Dynamic generation of seating grids for numbered events, visually distinguishing between **Normal [N]** and **VIP [V]** seats.
+* **Dynamic Pricing:** Automatic calculation of final prices based on event type (Cinema, Theater, Concert) and specific zone multipliers.
+
+---
+
+## Requirements
+* **Java SDK:** 17 or higher.
+* **Database:** Oracle Autonomous DB (Cloud).
+* **Driver:** Oracle JDBC (ojdbc11.jar).
