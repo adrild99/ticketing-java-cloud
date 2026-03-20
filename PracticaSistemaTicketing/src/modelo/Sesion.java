@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import excepciones.AsientoNoDisponibleException;
 
 public class Sesion {
-
+    private String idEvento;
     private String idSesion;
     private LocalDateTime fechaHora;
     private int aforoTotal;
@@ -16,14 +16,15 @@ public class Sesion {
 
     private ArrayList<Asiento> asientos = new ArrayList<>();
 
-    public Sesion(LocalDateTime fechaHora, int aforoTotal, int aforoDisponible, ModoAforo modo, String nombreZona) {
+    public Sesion(LocalDateTime fechaHora, int aforoTotal, int aforoDisponible, ModoAforo modo, String idEvento,
+            String nombreZona) {
         this.fechaHora = fechaHora;
         this.aforoTotal = aforoTotal;
         this.aforoDisponible = aforoDisponible;
         this.modo = modo;
+        this.idEvento = idEvento; 
         this.nombreZona = nombreZona;
 
-        // Inicializamos los asientos solo si es numerado
         if (modo == ModoAforo.NUMERADO) {
             for (int i = 1; i <= aforoTotal; i++) {
                 Zona zonaAsiento = (i <= 10) ? Zona.VIP : Zona.NORMAL;

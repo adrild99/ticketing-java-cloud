@@ -1,8 +1,6 @@
 package principal;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -120,10 +118,10 @@ public class SistemaTicketing {
                         procesarColaPedidos();
                         break;
                     case 5:
-                        leerHistorialVentas();
+                        db.leerHistorialDeVentas();
                         break;
                     case 6:
-                        mostrarEstadisticas();
+                        db.mostrarEstadisticas();
                         break;
                     case 7:
                         salir = true;
@@ -613,7 +611,7 @@ public class SistemaTicketing {
             e.printStackTrace();
         }
     }
-
+    /*
     public void mostrarEstadisticas() {
         System.out.println("\n--- ESTADÍSTICAS DE VENTAS ---");
         double totalRecaudado = 0;
@@ -691,4 +689,5 @@ public class SistemaTicketing {
             e.printStackTrace();
         }
     }
+        */
 }

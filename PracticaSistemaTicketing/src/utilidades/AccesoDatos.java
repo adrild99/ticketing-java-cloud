@@ -10,6 +10,8 @@ import modelo.ModoAforo;
 import modelo.Sesion;
 import modelo.Teatro;
 import pedidos.Operacion;
+import java.sql.*;
+import java.time.LocalDateTime;
 
 public class AccesoDatos {
 
@@ -28,7 +30,7 @@ public class AccesoDatos {
 
                 // Si el evento es un Concierto, es General. Si es Teatro o Cine, es Numerado.
                 ModoAforo modo = (ev instanceof Concierto) ? ModoAforo.GENERAL : ModoAforo.NUMERADO;
-                Sesion s = new Sesion(fecha, aforoMax, aforoDisp, modo, rsSes.getString("NOMBRE_ZONA"));
+                Sesion s = new Sesion(fecha, aforoMax, aforoDisp, modo, ev.getId(), rsSes.getString("NOMBRE_ZONA"));
                 s.setIdSesion(rsSes.getString("id_sesion"));
 
                 ev.addSesion(s);
@@ -146,7 +148,11 @@ public class AccesoDatos {
         System.out.println("Conectando a Oracle Cloud para cargar el catálogo...");
         ArrayList<Evento> listaTemporal = new ArrayList<>();
 
-        String sqlEventos = "SELECT * FROM EVENTOS";
+        String sqlEventos = "SELECT e.ID_EVENTO, e.NOMBRE, e.LUGAR, e.TIPO, " +
+                "s.ID_SESION, s.FECHA_HORA, s.AFORO_MAXIMO, s.AFORO_DISPONIBLE, s.NOMBRE_ZONA " +
+                "FROM EVENTOS e " +
+                "JOIN SESIONES s ON e.ID_EVENTO = s.ID_EVENTO " +
+                "ORDER BY s.FECHA_HORA ASC";
 
         try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
                 java.sql.Statement stmt = conn.createStatement();
@@ -158,9 +164,10 @@ public class AccesoDatos {
                 String lugar = rsEv.getString("lugar");
                 String tipo = rsEv.getString("tipo");
 
-                // Creamos el objeto según el tipo (como tu inicializarDatos)
+                // 1. Creamos el objeto según el tipo
                 Evento ev;
-                if ("MUSICA".equalsIgnoreCase(tipo) || "CONCIERTO".equalsIgnoreCase(tipo)) {
+                if ("MUSICA".equalsIgnoreCase(tipo) || "CONCIERTO".equalsIgnoreCase(tipo)
+                        || "MOTOR".equalsIgnoreCase(tipo)) {
                     ev = new Concierto(nombre, lugar, Categoria.CONCIERTO, true, false);
                 } else if ("TEATRO".equalsIgnoreCase(tipo)) {
                     ev = new Teatro(nombre, lugar, Categoria.TEATRO, false, true);
@@ -168,14 +175,28 @@ public class AccesoDatos {
                     ev = new Cine(nombre, lugar, Categoria.CINE, false, false);
                 }
 
-                ev.setId(id); // Importante: mantenemos el ID de la base de datos
+                ev.setId(id); // Mantenemos el ID de la base de datos
 
-                // CARGAMOS LAS SESIONES DE ESTE EVENTO
-                cargarSesionesDeEvento(ev, conn);
+                LocalDateTime fecha = rsEv.getTimestamp("FECHA_HORA").toLocalDateTime();
+                String zona = rsEv.getString("NOMBRE_ZONA");
+                ModoAforo modo = zona.equalsIgnoreCase("TRIBUNA") ? ModoAforo.NUMERADO : ModoAforo.GENERAL;
+
+                Sesion s = new Sesion(
+                        fecha,
+                        rsEv.getInt("AFORO_MAXIMO"),
+                        rsEv.getInt("AFORO_DISPONIBLE"),
+                        modo,
+                        ev.getId(),
+                        zona);
+                s.setIdSesion(rsEv.getString("ID_SESION"));
+
+                ev.addSesion(s);
 
                 listaTemporal.add(ev);
+
             }
-            System.out.println("Catálogo cargado: " + listaTemporal.size() + " eventos recuperados.");
+
+            System.out.println("Catálogo cargado: " + listaTemporal.size() + " sesiones de eventos recuperadas.");
 
         } catch (java.sql.SQLException e) {
             System.out.println("Error al cargar desde la nube. Usando datos de respaldo...");
@@ -183,5 +204,48 @@ public class AccesoDatos {
             // this.inicializarDatos(); // Si falla la nube, cargamos los de prueba
         }
         return listaTemporal;
+    }
+
+    // 1. Leer todo lo que se ha vendido en la historia
+    public void leerHistorialDeVentas() {
+        String sql = "SELECT * FROM HISTORIAL_VENTAS ORDER BY id_pedido DESC";
+        System.out.println("\n--- HISTORIAL DE VENTAS ---");
+
+        try (Connection conn = utilidades.ConexionDB.conectar();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                System.out.printf("Pedido: %s | Evento: %s | Cantidad: %d | Total: %.2f euros | Usuario: %s%n",
+                        rs.getString("ID_PEDIDO"),
+                        rs.getString("ID_EVENTO"),
+                        rs.getInt("CANTIDAD_ENTRADAS"),
+                        rs.getDouble("PRECIO_TOTAL"),
+                        rs.getString("EMAIL_USUARIO"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al leer historial: " + e.getMessage());
+        }
+    }
+
+    // 2. Calcular estadísticas reales usando SQL
+    public void mostrarEstadisticas() {
+        // Pedimos a Oracle que sume y cuente por nosotros
+        String sql = "SELECT COUNT(*) as total_ventas, SUM(CANTIDAD_ENTRADAS) as total_entradas, SUM(PRECIO_TOTAL) as recaudacion FROM HISTORIAL_VENTAS";
+
+        try (Connection conn = utilidades.ConexionDB.conectar();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                System.out.println("\n===== ESTADÍSTICAS GENERALES =====");
+                System.out.println("Nº de Operaciones: " + rs.getInt("total_ventas"));
+                System.out.println("Total Entradas Vendidas: " + rs.getInt("total_entradas"));
+                System.out.println("Recaudación Total: " + rs.getDouble("recaudacion") + " euros");
+                System.out.println("==================================");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al calcular estadísticas: " + e.getMessage());
+        }
     }
 }
