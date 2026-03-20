@@ -12,14 +12,16 @@ public class Sesion {
     private int aforoTotal;
     private int aforoDisponible;
     private ModoAforo modo;
+    private String nombreZona;
 
     private ArrayList<Asiento> asientos = new ArrayList<>();
 
-    public Sesion(LocalDateTime fechaHora, int aforoTotal, int aforoDisponible, ModoAforo modo) {
+    public Sesion(LocalDateTime fechaHora, int aforoTotal, int aforoDisponible, ModoAforo modo, String nombreZona) {
         this.fechaHora = fechaHora;
         this.aforoTotal = aforoTotal;
         this.aforoDisponible = aforoDisponible;
         this.modo = modo;
+        this.nombreZona = nombreZona;
 
         // Inicializamos los asientos solo si es numerado
         if (modo == ModoAforo.NUMERADO) {
@@ -142,4 +144,7 @@ public class Sesion {
         return aforoTotal;
     }
 
+    public String getNombreZona() {
+        return nombreZona;
+    }
 }

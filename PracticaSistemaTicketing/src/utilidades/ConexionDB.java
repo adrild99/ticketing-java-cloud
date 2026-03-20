@@ -48,7 +48,7 @@ public class ConexionDB {
         Connection conn = conectar();
 
         if (conn != null) {
-            System.out.println("Probando consulta a la tabla EVENTOS...");
+            System.out.println("Probando consulta a la tabla EVENTOS");
 
             // 2. Preparamos la sentencia SQL
             String sql = "SELECT id_evento, nombre, tipo FROM EVENTOS";

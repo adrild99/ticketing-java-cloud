@@ -28,8 +28,11 @@ import pedidos.EstadoPedido;
 import pedidos.Operacion;
 import pedidos.Pedido;
 import pedidos.TipoOperacion;
+
+import utilidades.AccesoDatos;
 import utilidades.ConexionDB;
 import utilidades.Validador;
+import utilidades.AccesoDatos;
 
 import java.time.format.DateTimeFormatter;
 import java.io.File;
@@ -43,6 +46,9 @@ public class SistemaTicketing {
 
     public static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'a las' HH:mm:ss");
 
+    private AccesoDatos db = new AccesoDatos(); //acceso a la clase AccesoDatos para conectar con la base de datos
+
+
     private ArrayList<Evento> catalogo = new ArrayList<>();
     private Stack<Operacion> historial = new Stack<>();
     private Queue<Pedido> colaPedidos = new LinkedList<>();
@@ -53,7 +59,7 @@ public class SistemaTicketing {
         sistema.cargarDatosDesdeNube();
         sistema.menu();
     }
-
+    /* //esto son los datos creados
     public void inicializarDatos() {
         System.out.println("Cargando catálogo de eventos...");
 
@@ -81,7 +87,7 @@ public class SistemaTicketing {
         this.catalogo.add(t1);
         this.catalogo.add(p1);
     }
-
+ */
     public void menu() {
         boolean salir = false;
 
@@ -256,7 +262,7 @@ public class SistemaTicketing {
 
         if (sesionElegida.getModo() == ModoAforo.GENERAL) {
             sesionElegida.reservarGeneral(cantidad);
-            actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
+            db.actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
 
             for (int i = 0; i < cantidad; i++) {
                 double precioFinal = precioBase * eventoElegido.getRecargoBase();
@@ -303,7 +309,7 @@ public class SistemaTicketing {
                 }
             }
             sesionElegida.reservarGeneral(cantidad); // disminuye el número total del aforo en Java
-            actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
+            db.actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
         }
 
         System.out.println("Total a pagar: " + miCarrito.calcularTotal() + " EUROS");
@@ -349,7 +355,7 @@ public class SistemaTicketing {
             }
 
             // Para que la baseddtos sepa que las entradas vuelven a estar libres
-            actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
+            db.actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
 
             return;
         }
@@ -422,7 +428,7 @@ public class SistemaTicketing {
             } else {
                 sesionElegida.liberarAsientos(asientosReservados);
             }
-            actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
+            db.actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
             return;
         }
 
@@ -508,14 +514,14 @@ public class SistemaTicketing {
                 } else {
                     if (sesion.getModo() == ModoAforo.GENERAL) {
                         sesion.liberarGeneral(entradasDevueltas.size());
-                        actualizarAforoEnNube(sesion, evento.getId()); // actualiza en la nube de la db
+                        db.actualizarAforoEnNube(sesion, evento.getId()); // actualiza en la nube de la db
                     } else {
                         ArrayList<Asiento> asientosDevueltos = new ArrayList<>();
                         for (Entrada e : entradasDevueltas) {
                             asientosDevueltos.add(e.getAsiento());
                         }
                         sesion.liberarAsientos(asientosDevueltos);
-                        actualizarAforoEnNube(sesion, evento.getId()); // actualiza en la nube de la db
+                        db.actualizarAforoEnNube(sesion, evento.getId()); // actualiza en la nube de la db
                     }
                     System.out
                             .println("Se ha restaurado el aforo: " + entradasDevueltas.size() + " asientos devueltos.");
@@ -801,7 +807,7 @@ public class SistemaTicketing {
                 ev.setId(id); // Importante: mantenemos el ID de la base de datos
 
                 // CARGAMOS LAS SESIONES DE ESTE EVENTO
-                cargarSesionesDeEvento(ev, conn);
+                db.cargarSesionesDeEvento(ev, conn);
 
                 this.catalogo.add(ev);
             }
@@ -810,50 +816,12 @@ public class SistemaTicketing {
         } catch (java.sql.SQLException e) {
             System.out.println("Error al cargar desde la nube. Usando datos de respaldo...");
             e.printStackTrace();
-            this.inicializarDatos(); // Si falla la nube, cargamos los de prueba
+            //this.inicializarDatos(); // Si falla la nube, cargamos los de prueba
         }
     }
 
-    private void cargarSesionesDeEvento(Evento ev, java.sql.Connection conn) throws java.sql.SQLException {
-        String sqlSes = "SELECT * FROM SESIONES WHERE id_evento = ?";
-        try (java.sql.PreparedStatement pstmt = conn.prepareStatement(sqlSes)) {
-            pstmt.setString(1, ev.getId());
-            java.sql.ResultSet rsSes = pstmt.executeQuery();
+    
 
-            while (rsSes.next()) {
-                // Convertimos el Timestamp de Oracle a LocalDateTime de Java
-                java.time.LocalDateTime fecha = rsSes.getTimestamp("fecha_hora").toLocalDateTime();
-                int aforoMax = rsSes.getInt("aforo_maximo");
-                int aforoDisp = rsSes.getInt("aforo_disponible");
-
-                // Si el evento es un Concierto, es General. Si es Teatro o Cine, es Numerado.
-                ModoAforo modo = (ev instanceof Concierto) ? ModoAforo.GENERAL : ModoAforo.NUMERADO;
-                Sesion s = new Sesion(fecha, aforoMax, aforoDisp, modo);
-                s.setIdSesion(rsSes.getString("id_sesion"));
-
-                ev.addSesion(s);
-            }
-        }
-    }
-
-    // Le añadimos el String idEvento al paréntesis
-    private void actualizarAforoEnNube(Sesion s, String idEvento) {
-        // Añadimos "AND id_evento = ?" para que sea un tiro de precisión
-        String sql = "UPDATE SESIONES SET aforo_disponible = ? WHERE id_sesion = ? AND id_evento = ?";
-
-        try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
-                java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, s.getAforoDisponible());
-            pstmt.setString(2, s.getIdSesion());
-            pstmt.setString(3, idEvento); // <--- Usamos el ID que pasamos por parámetro
-
-            pstmt.executeUpdate();
-            System.out.println("Base de datos actualizada con éxito.");
-
-        } catch (java.sql.SQLException e) {
-            e.printStackTrace();
-        }
-    }
+   
 
 }
