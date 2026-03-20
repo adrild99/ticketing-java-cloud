@@ -143,9 +143,6 @@ public class SistemaTicketing {
             System.out.println("Lo sentimos, no hay eventos programados en este momento.");
             return;
         }
-        // formateo de fecha para ponerlo más estético
-        DateTimeFormatter formatoBonito = DateTimeFormatter.ofPattern("dd/MM/yyyy 'a las' HH:mm");
-
         for (Evento e : this.catalogo) {
             System.out.println(e.toString());
 
@@ -697,9 +694,6 @@ public class SistemaTicketing {
         try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
                 java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            if (conn == null)
-                return;
-
             pstmt.setString(1, idPedido);
             pstmt.setString(2, idEvento);
             pstmt.setString(3, idSesion);
@@ -760,9 +754,6 @@ public class SistemaTicketing {
 
         try (java.sql.Connection conn = ConexionDB.conectar();
                 java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            if (conn == null)
-                return;
 
             pstmt.setString(1, idDevolucion);
             pstmt.setString(2, idEvento);
