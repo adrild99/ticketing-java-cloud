@@ -11,11 +11,11 @@ Professional ticket management and sales system for events (Concerts, Cinema, an
 * **Secure Connectivity (mTLS):** Implementation of JDBC connection via **Oracle Wallet**, ensuring end-to-end data encryption between the Java application and the cloud.
 * **Real-time Synchronization:** The system performs automatic inventory updates using SQL `UPDATE` and `SELECT` queries, ensuring capacity accuracy across multiple concurrent sessions.
 
-### 🏛️ Relational Database Modeling
+### Relational Database Modeling
 * **Composite Primary Keys:** Implementation of referential integrity through composite keys (`id_event` + `id_session`), allowing for an intuitive session numbering (1, 2, 3...) that is independent for each specific event.
 * **Capacity Shield Logic:** A security algorithm within the `Session` class that prevents "available capacity" from exceeding the "total capacity," protecting the database from data corruption during multi-step refunds.
 
-### 🛠️ Code Refactoring & Logic
+### Code Refactoring & Logic
 * **High-Performance Menu:** Transitioned from nested `if-else` structures to a `switch-case` control engine, significantly improving code readability and maintainability.
 * **Advanced Business Validation:** * **Credit Cards:** Logical expiration control (comparing MM/YY input against the system's `YearMonth` clock).
     * **Emails:** Strict validation using Regular Expressions (Regex) to filter out invalid domain structures.
