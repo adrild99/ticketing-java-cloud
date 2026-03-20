@@ -489,14 +489,14 @@ public class SistemaTicketing {
     public void guardarPedidoEnFichero(Pedido pedido) {
         try {
             // carpeta que queremos usar
-            File directorio = new File("src/registroEntradas");
+            File directorio = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
             // Si la carpeta NO existe, le decimos a Java que la fabrique
             if (!directorio.exists()) {
                 directorio.mkdirs();
             }
 
             // 3. Ahora guardamos el archivo indicando la ruta: "carpeta/archivo.txt"
-            FileWriter writer = new FileWriter("src/registroEntradas/RegistroVentas.txt", true);
+            FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt", true);
 
             String tipoPago = pedido.getPago().getClass().getSimpleName().replace("Pago", "");
 
@@ -529,7 +529,7 @@ public class SistemaTicketing {
         int pedidosProcesados = 0;
 
         // Apuntamos al archivo que tu Opción 4 genera
-        File archivo = new File("src/registroEntradas/RegistroVentas.txt");
+        File archivo = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
 
         if (!archivo.exists()) {
             System.out.println("Todavía no hay ventas registradas o el archivo no existe.");
@@ -573,7 +573,7 @@ public class SistemaTicketing {
         System.out.println("\n--- HISTORIAL COMPLETO DE VENTAS ---");
 
         // instanciamos el log
-        File archivo = new File("src/registroEntradas/RegistroVentas.txt");
+        File archivo = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
 
         // Si nadie ha comprado nada aún, avisamos y salimos
         if (!archivo.exists()) {
@@ -649,13 +649,13 @@ public class SistemaTicketing {
 
     public void guardarDevolucionEnFichero(Operacion op) {
         try {
-            File directorio = new File("src/registroEntradas");
+            File directorio = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
             if (!directorio.exists()) {
                 directorio.mkdirs();
             }
 
             // Abrimos en modo "true"
-            FileWriter writer = new FileWriter("src/registroEntradas/RegistroVentas.txt", true);
+            FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt", true);
 
             writer.write("\n === TICKET DE DEVOLUCIÓN === \n");
             String fechaFormateada = LocalDateTime.now().format(FORMATO_FECHA);

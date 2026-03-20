@@ -14,3 +14,27 @@ Evento ID: EV-01 | Sesión ID: SES-01
 Estado: CANCELADO / REEMBOLSADO
 Total: -26.0 euros
 =============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 10:39:47
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-01E3BF) Interstellar
+Evento ID: EV-04 | Sesión ID: SES-01
+Estado: CANCELADO / REEMBOLSADO
+Total: -30.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 10:41:24
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-A72287, Estado: PROCESADO, Total: 36.0 euros, Nº Entradas: 2
+Evento: El Rey León Evento ID: EV-03 | Sesión ID: SES-02
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 10:41:24
+Operación deshecha: Compra de 2 entradas para  (Ref: PED-A72287) El Rey León
+Evento ID: EV-03 | Sesión ID: SES-02
+Estado: CANCELADO / REEMBOLSADO
+Total: -36.0 euros
+=============================
