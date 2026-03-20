@@ -1,5 +1,12 @@
 package principal;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -7,40 +14,22 @@ import java.util.Scanner;
 import java.util.Stack;
 
 import excepciones.AsientoNoDisponibleException;
-
 import modelo.Asiento;
-import modelo.Categoria;
-import modelo.Cine;
-import modelo.Concierto;
 import modelo.Evento;
 import modelo.ModoAforo;
 import modelo.Sesion;
-import modelo.Teatro;
-
 import pagos.Pago;
 import pagos.PagoBizum;
 import pagos.PagoPayPal;
 import pagos.PagoTarjeta;
-
 import pedidos.Carrito;
 import pedidos.Entrada;
 import pedidos.EstadoPedido;
 import pedidos.Operacion;
 import pedidos.Pedido;
 import pedidos.TipoOperacion;
-
 import utilidades.AccesoDatos;
-import utilidades.ConexionDB;
 import utilidades.Validador;
-import utilidades.AccesoDatos;
-
-import java.time.format.DateTimeFormatter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 public class SistemaTicketing {
 

@@ -1,11 +1,15 @@
 package utilidades;
 
-import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import modelo.*;
-import pedidos.*;
+import modelo.Categoria;
+import modelo.Cine;
+import modelo.Concierto;
+import modelo.Evento;
+import modelo.ModoAforo;
+import modelo.Sesion;
+import modelo.Teatro;
+import pedidos.Operacion;
 
 public class AccesoDatos {
 
