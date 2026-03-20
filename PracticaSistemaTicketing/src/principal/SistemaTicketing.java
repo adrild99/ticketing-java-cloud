@@ -46,8 +46,7 @@ public class SistemaTicketing {
 
     public static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy 'a las' HH:mm:ss");
 
-    private AccesoDatos db = new AccesoDatos(); //acceso a la clase AccesoDatos para conectar con la base de datos
-
+    private AccesoDatos db = new AccesoDatos(); // acceso a la clase AccesoDatos para conectar con la base de datos
 
     private ArrayList<Evento> catalogo = new ArrayList<>();
     private Stack<Operacion> historial = new Stack<>();
@@ -56,38 +55,49 @@ public class SistemaTicketing {
 
     public static void main(String[] args) {
         SistemaTicketing sistema = new SistemaTicketing();
-        sistema.cargarDatosDesdeNube();
+        sistema.catalogo = sistema.db.cargarDatosDesdeNube();
         sistema.menu();
     }
-    /* //esto son los datos creados
-    public void inicializarDatos() {
-        System.out.println("Cargando catálogo de eventos...");
 
-        Concierto c1 = new Concierto("Festival Rock", "Wizink Center", Categoria.CONCIERTO, true, false);
-        Concierto c2 = new Concierto("Concierto Indie", "Sala Riviera", Categoria.CONCIERTO, false, false);
-
-        Sesion s1 = new Sesion(LocalDateTime.now().plusDays(10), 500, 500, ModoAforo.GENERAL);
-        Sesion s2 = new Sesion(LocalDateTime.now().plusDays(10), 500, 500, ModoAforo.GENERAL);
-
-        c1.addSesion(s1);
-        c2.addSesion(s2);
-
-        Teatro t1 = new Teatro("El Rey León", "Teatro Lope de Vega", Categoria.TEATRO, false, true);
-        Sesion s3 = new Sesion(LocalDateTime.now().plusDays(5), 100, 100, ModoAforo.NUMERADO);
-        Sesion s4 = new Sesion(LocalDateTime.now().plusDays(6), 100, 100, ModoAforo.NUMERADO);
-        Cine p1 = new Cine("Interstellar", "Mk2 Cinesur", Categoria.CINE, false, false);
-        Sesion s5 = new Sesion(LocalDateTime.now().plusDays(6), 60, 60, ModoAforo.NUMERADO);
-
-        t1.addSesion(s3);
-        t1.addSesion(s4);
-        p1.addSesion(s5);
-
-        this.catalogo.add(c1);
-        this.catalogo.add(c2);
-        this.catalogo.add(t1);
-        this.catalogo.add(p1);
-    }
- */
+    /*
+     * //esto son los datos creados
+     * public void inicializarDatos() {
+     * System.out.println("Cargando catálogo de eventos...");
+     * 
+     * Concierto c1 = new Concierto("Festival Rock", "Wizink Center",
+     * Categoria.CONCIERTO, true, false);
+     * Concierto c2 = new Concierto("Concierto Indie", "Sala Riviera",
+     * Categoria.CONCIERTO, false, false);
+     * 
+     * Sesion s1 = new Sesion(LocalDateTime.now().plusDays(10), 500, 500,
+     * ModoAforo.GENERAL);
+     * Sesion s2 = new Sesion(LocalDateTime.now().plusDays(10), 500, 500,
+     * ModoAforo.GENERAL);
+     * 
+     * c1.addSesion(s1);
+     * c2.addSesion(s2);
+     * 
+     * Teatro t1 = new Teatro("El Rey León", "Teatro Lope de Vega",
+     * Categoria.TEATRO, false, true);
+     * Sesion s3 = new Sesion(LocalDateTime.now().plusDays(5), 100, 100,
+     * ModoAforo.NUMERADO);
+     * Sesion s4 = new Sesion(LocalDateTime.now().plusDays(6), 100, 100,
+     * ModoAforo.NUMERADO);
+     * Cine p1 = new Cine("Interstellar", "Mk2 Cinesur", Categoria.CINE, false,
+     * false);
+     * Sesion s5 = new Sesion(LocalDateTime.now().plusDays(6), 60, 60,
+     * ModoAforo.NUMERADO);
+     * 
+     * t1.addSesion(s3);
+     * t1.addSesion(s4);
+     * p1.addSesion(s5);
+     * 
+     * this.catalogo.add(c1);
+     * this.catalogo.add(c2);
+     * this.catalogo.add(t1);
+     * this.catalogo.add(p1);
+     * }
+     */
     public void menu() {
         boolean salir = false;
 
@@ -457,7 +467,7 @@ public class SistemaTicketing {
 
         String asientosFinal = asientosStr.length() > 0 ? asientosStr.substring(0, asientosStr.length() - 2) : "";
 
-        guardarVentaEnNube(
+        db.guardarVentaEnNube(
                 idPedidoNube,
                 eventoElegido.getId(),
                 sesionElegida.getIdSesion(),
@@ -541,7 +551,7 @@ public class SistemaTicketing {
 
         // Por tanto, el dinero ya sumó en el .txt y hay que hacer un ticket negativo.
         if (estabaEnCola == false) {
-            guardarDevolucionEnNube(ultima);
+            db.guardarDevolucionEnNube(ultima);
             System.out.println(
                     "El pedido ya estaba procesado. Se ha generado un comprobante de DEVOLUCIÓN en el archivo físico.");
         }
@@ -692,136 +702,4 @@ public class SistemaTicketing {
             e.printStackTrace();
         }
     }
-
-    public void guardarVentaEnNube(String idPedido, String idEvento, String idSesion, int cantidad, double precioTotal,
-            String metodoPago, String emailUsuario, String asientos) {
-        String sql = "INSERT INTO HISTORIAL_VENTAS (ID_PEDIDO, ID_EVENTO, ID_SESION, CANTIDAD_ENTRADAS, PRECIO_TOTAL, METODO_PAGO, EMAIL_USUARIO, ASIENTOS_COMPRADOS) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
-                java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, idPedido);
-            pstmt.setString(2, idEvento);
-            pstmt.setString(3, idSesion);
-            pstmt.setInt(4, cantidad);
-            pstmt.setDouble(5, precioTotal);
-            pstmt.setString(6, metodoPago);
-            pstmt.setString(7, emailUsuario);
-            pstmt.setString(8, asientos);
-
-            pstmt.executeUpdate();
-            System.out.println("Venta registrada en Oracle Cloud.");
-
-        } catch (java.sql.SQLException e) {
-            System.out.println("Error de Oracle: " + e.getMessage());
-        }
-    }
-
-    public void guardarDevolucionEnNube(Operacion op) {
-        // Si no hay entradas, no hay nada que devolver
-        if (op.getEntradasAfectadas() == null || op.getEntradasAfectadas().isEmpty()) {
-            return;
-        }
-
-        // Sacamos los datos básicos de la primera entrada devuelta
-        pedidos.Entrada primera = op.getEntradasAfectadas().get(0);
-        String idEvento = primera.getIdEvento();
-        String idSesion = primera.getIdSesion();
-
-        // Calculamos el total a devolver y generamos un ID de Devolución único
-        // Calculamos el total a devolver y sacamos los asientos (con cuidado por si son
-        // nulos)
-        double totalDevuelto = 0;
-        StringBuilder asientosDevueltos = new StringBuilder();
-
-        for (pedidos.Entrada e : op.getEntradasAfectadas()) {
-            totalDevuelto += e.getPrecioFinal();
-
-            // ESCUDO: Comprobamos si la entrada tiene un asiento físico asignado
-            if (e.getAsiento() != null) {
-                asientosDevueltos.append(e.getAsiento().getIdAsiento()).append(", ");
-            } else {
-                asientosDevueltos.append("General, ");
-            }
-        }
-
-        // Quitamos la última coma y espacio de los asientos
-        String asientosStr = asientosDevueltos.length() > 0
-                ? asientosDevueltos.substring(0, asientosDevueltos.length() - 2)
-                : "";
-
-        // Generamos un ID especial para que sepas que es una devolución (ej.
-        // DEV-8f4b2a)
-        String idDevolucion = "DEV-" + java.util.UUID.randomUUID().toString().substring(0, 6);
-        int cantidadDevuelta = op.getEntradasAfectadas().size();
-
-        // Hacemos el INSERT. Nota que ponemos la cantidad y el precio en NEGATIVO.
-        String sql = "INSERT INTO HISTORIAL_VENTAS (ID_PEDIDO, ID_EVENTO, ID_SESION, CANTIDAD_ENTRADAS, PRECIO_TOTAL, METODO_PAGO, EMAIL_USUARIO, ASIENTOS_COMPRADOS) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (java.sql.Connection conn = ConexionDB.conectar();
-                java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, idDevolucion);
-            pstmt.setString(2, idEvento);
-            pstmt.setString(3, idSesion);
-            pstmt.setInt(4, -cantidadDevuelta); // Cantidad en negativo
-            pstmt.setDouble(5, -totalDevuelto); // Dinero en negativo
-            pstmt.setString(6, "REEMBOLSO"); // Método de pago especial
-            pstmt.setString(7, "usuario@sistema"); // O saca el email si lo tienes guardado en la operación
-            pstmt.setString(8, "DEVOLUCIÓN: " + asientosStr);
-
-            pstmt.executeUpdate();
-            System.out.println("Justificante de devolución " + idDevolucion + " guardado en la nube.");
-
-        } catch (java.sql.SQLException e) {
-            System.out.println("Error al guardar la devolución en la nube: " + e.getMessage());
-        }
-    }
-
-    public void cargarDatosDesdeNube() {
-        System.out.println("Conectando a Oracle Cloud para cargar el catálogo...");
-        this.catalogo.clear();
-
-        String sqlEventos = "SELECT * FROM EVENTOS";
-
-        try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
-                java.sql.Statement stmt = conn.createStatement();
-                java.sql.ResultSet rsEv = stmt.executeQuery(sqlEventos)) {
-
-            while (rsEv.next()) {
-                String id = rsEv.getString("id_evento");
-                String nombre = rsEv.getString("nombre");
-                String lugar = rsEv.getString("lugar");
-                String tipo = rsEv.getString("tipo");
-
-                // Creamos el objeto según el tipo (como tu inicializarDatos)
-                Evento ev;
-                if ("MUSICA".equalsIgnoreCase(tipo) || "CONCIERTO".equalsIgnoreCase(tipo)) {
-                    ev = new Concierto(nombre, lugar, Categoria.CONCIERTO, true, false);
-                } else if ("TEATRO".equalsIgnoreCase(tipo)) {
-                    ev = new Teatro(nombre, lugar, Categoria.TEATRO, false, true);
-                } else {
-                    ev = new Cine(nombre, lugar, Categoria.CINE, false, false);
-                }
-
-                ev.setId(id); // Importante: mantenemos el ID de la base de datos
-
-                // CARGAMOS LAS SESIONES DE ESTE EVENTO
-                db.cargarSesionesDeEvento(ev, conn);
-
-                this.catalogo.add(ev);
-            }
-            System.out.println("Catálogo cargado: " + this.catalogo.size() + " eventos recuperados.");
-
-        } catch (java.sql.SQLException e) {
-            System.out.println("Error al cargar desde la nube. Usando datos de respaldo...");
-            e.printStackTrace();
-            //this.inicializarDatos(); // Si falla la nube, cargamos los de prueba
-        }
-    }
-
-    
-
-   
-
 }
