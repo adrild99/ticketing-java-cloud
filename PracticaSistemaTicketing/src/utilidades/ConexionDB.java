@@ -12,7 +12,7 @@ public class ConexionDB {
             try (java.io.FileInputStream fis = new java.io.FileInputStream("config.properties")) {
                 config.load(fis);
             } catch (Exception e) {
-                System.out.println("⚠️ Error: No se encuentra el archivo config.properties");
+                System.out.println("Error: No se encuentra el archivo config.properties");
                 return null;
             }
 
@@ -48,7 +48,7 @@ public class ConexionDB {
         Connection conn = conectar();
 
         if (conn != null) {
-            System.out.println("🔎 Probando consulta a la tabla EVENTOS...");
+            System.out.println("Probando consulta a la tabla EVENTOS...");
 
             // 2. Preparamos la sentencia SQL
             String sql = "SELECT id_evento, nombre, tipo FROM EVENTOS";
@@ -69,7 +69,7 @@ public class ConexionDB {
                 conn.close();
 
             } catch (SQLException e) {
-                System.out.println("❌ Error al leer los datos:");
+                System.out.println("Error al leer los datos:");
                 e.printStackTrace();
             }
         }

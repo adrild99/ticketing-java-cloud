@@ -222,3 +222,51 @@ Evento ID: EV-01 | Sesión ID: SES-01
 Estado: CANCELADO / REEMBOLSADO
 Total: -26.0 euros
 =============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 16:41:18
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-07634E, Estado: PROCESADO, Total: 30.0 euros, Nº Entradas: 1
+Evento: El Señor de los Anillos (Maraton) Evento ID: EV-10 | Sesión ID: SES-02
+=============================
+
+ === TICKET DE DEVOLUCIÓN === 
+Fecha de proceso: 20/03/2026 a las 16:41:31
+Operación deshecha: Compra de 1 entradas para  (Ref: PED-07634E) El Señor de los Anillos (Maraton)
+Evento ID: EV-10 | Sesión ID: SES-02
+Estado: CANCELADO / REEMBOLSADO
+Total: -30.0 euros
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 16:55:44
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-A0C8A4, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Festival Viña Rock Evento ID: EV-03 | Sesión ID: SES-01
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 16:57:20
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-FB03F7, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Gira Mundial AC/DC Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 17:15:43
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-560672, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Gira Mundial AC/DC Evento ID: EV-01 | Sesión ID: SES-01
+=============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 17:34:13
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-1F2B7E, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
+Evento: Gira Mundial AC/DC Evento ID: EV-01 | Sesión ID: SES-01
+=============================

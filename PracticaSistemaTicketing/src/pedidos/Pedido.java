@@ -6,8 +6,6 @@ import pagos.Pago;
 
 public class Pedido {
 
-    private static int contadorPedidos = 1;
-
     private String idPedido;
     private EstadoPedido estado;
     private ArrayList<Entrada> entradas = new ArrayList<>();

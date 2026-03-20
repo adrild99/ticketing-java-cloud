@@ -28,7 +28,7 @@ import pedidos.EstadoPedido;
 import pedidos.Operacion;
 import pedidos.Pedido;
 import pedidos.TipoOperacion;
-
+import utilidades.ConexionDB;
 import utilidades.Validador;
 
 import java.time.format.DateTimeFormatter;
@@ -38,10 +38,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 
 public class SistemaTicketing {
 
@@ -263,7 +259,7 @@ public class SistemaTicketing {
 
         if (sesionElegida.getModo() == ModoAforo.GENERAL) {
             sesionElegida.reservarGeneral(cantidad);
-            actualizarAforoEnNube(sesionElegida);
+            actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
 
             for (int i = 0; i < cantidad; i++) {
                 double precioFinal = precioBase * eventoElegido.getRecargoBase();
@@ -310,10 +306,26 @@ public class SistemaTicketing {
                 }
             }
             sesionElegida.reservarGeneral(cantidad); // disminuye el número total del aforo en Java
-            actualizarAforoEnNube(sesionElegida);
+            actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
         }
 
         System.out.println("Total a pagar: " + miCarrito.calcularTotal() + " EUROS");
+
+        String emailCliente;
+        boolean emailCorrecto = false;
+
+        do {
+            System.out.print("Introduce tu email para enviarte los tickets: ");
+            emailCliente = sc.nextLine();
+
+            if (utilidades.Validador.esEmailValido(emailCliente)) {
+                emailCorrecto = true;
+            } else {
+                System.out.println("Formato de email incorrecto. Ejemplo: usuario@dominio.com");
+            }
+        } while (!emailCorrecto);
+
+        // Una vez sale del bucle, ya puedes seguir con el pago...
 
         System.out.println("MÉTODO DE PAGO: ");
         System.out.println("1. Bizum");
@@ -340,7 +352,7 @@ public class SistemaTicketing {
             }
 
             // Para que la baseddtos sepa que las entradas vuelven a estar libres
-            actualizarAforoEnNube(sesionElegida);
+            actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
 
             return;
         }
@@ -413,7 +425,7 @@ public class SistemaTicketing {
             } else {
                 sesionElegida.liberarAsientos(asientosReservados);
             }
-            actualizarAforoEnNube(sesionElegida);
+            actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
             return;
         }
 
@@ -426,6 +438,31 @@ public class SistemaTicketing {
         this.historial.push(op);
 
         this.colaPedidos.add(miPedido);
+
+        // Preparamos el ID del pedido (Cogemos el que ya genera tu clase Pedido)
+        String idPedidoNube = miPedido.getIdPedido();
+
+        // Preparamos la lista de asientos separada por comas
+        StringBuilder asientosStr = new StringBuilder();
+        for (Entrada e : entradasCompradas) {
+            if (e.getAsiento() != null) {
+                asientosStr.append(e.getAsiento().getIdAsiento()).append(", ");
+            } else {
+                asientosStr.append("General, ");
+            }
+        }
+
+        String asientosFinal = asientosStr.length() > 0 ? asientosStr.substring(0, asientosStr.length() - 2) : "";
+
+        guardarVentaEnNube(
+                idPedidoNube,
+                eventoElegido.getId(),
+                sesionElegida.getIdSesion(),
+                cantidad,
+                miCarrito.calcularTotal(),
+                pago.getClass().getSimpleName(),
+                emailCliente,
+                asientosFinal);
 
         System.out.println("COMPRA FINALIZADA");
         System.out.println(miPedido.toString());
@@ -474,14 +511,14 @@ public class SistemaTicketing {
                 } else {
                     if (sesion.getModo() == ModoAforo.GENERAL) {
                         sesion.liberarGeneral(entradasDevueltas.size());
-                        actualizarAforoEnNube(sesion); // actualiza en la nube de la db
+                        actualizarAforoEnNube(sesion, evento.getId()); // actualiza en la nube de la db
                     } else {
                         ArrayList<Asiento> asientosDevueltos = new ArrayList<>();
                         for (Entrada e : entradasDevueltas) {
                             asientosDevueltos.add(e.getAsiento());
                         }
                         sesion.liberarAsientos(asientosDevueltos);
-                        actualizarAforoEnNube(sesion); // actualiza en la nube de la db
+                        actualizarAforoEnNube(sesion, evento.getId()); // actualiza en la nube de la db
                     }
                     System.out
                             .println("Se ha restaurado el aforo: " + entradasDevueltas.size() + " asientos devueltos.");
@@ -501,7 +538,7 @@ public class SistemaTicketing {
 
         // Por tanto, el dinero ya sumó en el .txt y hay que hacer un ticket negativo.
         if (estabaEnCola == false) {
-            guardarDevolucionEnFichero(ultima);
+            guardarDevolucionEnNube(ultima);
             System.out.println(
                     "El pedido ya estaba procesado. Se ha generado un comprobante de DEVOLUCIÓN en el archivo físico.");
         }
@@ -653,89 +690,94 @@ public class SistemaTicketing {
         }
     }
 
-    public void guardarDatosBinarios() {
-        try {
-            // el archivo "datos.dat" en la carpeta src
-            FileOutputStream fos = new FileOutputStream("src/datos.dat");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+    public void guardarVentaEnNube(String idPedido, String idEvento, String idSesion, int cantidad, double precioTotal,
+            String metodoPago, String emailUsuario, String asientos) {
+        String sql = "INSERT INTO HISTORIAL_VENTAS (ID_PEDIDO, ID_EVENTO, ID_SESION, CANTIDAD_ENTRADAS, PRECIO_TOTAL, METODO_PAGO, EMAIL_USUARIO, ASIENTOS_COMPRADOS) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-            // la lista entera de eventos dentro de oos
-            oos.writeObject(this.catalogo);
+        try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
+                java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            oos.close();
-            System.out.println("Estado del programa guardado correctamente en 'datos.dat'.");
+            if (conn == null)
+                return;
 
-        } catch (Exception e) {
-            System.out.println("Error al guardar los datos binarios.");
-            e.printStackTrace();
+            pstmt.setString(1, idPedido);
+            pstmt.setString(2, idEvento);
+            pstmt.setString(3, idSesion);
+            pstmt.setInt(4, cantidad);
+            pstmt.setDouble(5, precioTotal);
+            pstmt.setString(6, metodoPago);
+            pstmt.setString(7, emailUsuario);
+            pstmt.setString(8, asientos);
+
+            pstmt.executeUpdate();
+            System.out.println("Venta registrada en Oracle Cloud.");
+
+        } catch (java.sql.SQLException e) {
+            System.out.println("Error de Oracle: " + e.getMessage());
         }
     }
 
-    public void cargarDatosBinarios() {
-        File archivo = new File("src/datos.dat");
-
-        // Si el archivo no existe, significa que es la primera vez que abres el
-        // programa
-        if (!archivo.exists()) {
-            System.out.println("No hay datos guardados. Se creará un catálogo vacío.");
-            this.inicializarDatos();
+    public void guardarDevolucionEnNube(Operacion op) {
+        // Si no hay entradas, no hay nada que devolver
+        if (op.getEntradasAfectadas() == null || op.getEntradasAfectadas().isEmpty()) {
             return;
         }
 
-        try {
-            // Si el archivo SÍ existe, lo lee
-            FileInputStream fis = new FileInputStream(archivo);
-            ObjectInputStream ois = new ObjectInputStream(fis);
+        // Sacamos los datos básicos de la primera entrada devuelta
+        pedidos.Entrada primera = op.getEntradasAfectadas().get(0);
+        String idEvento = primera.getIdEvento();
+        String idSesion = primera.getIdSesion();
 
-            // Carga la lista y machaca el catálogo vacío con los datos reales
-            this.catalogo = (ArrayList<Evento>) ois.readObject();
+        // Calculamos el total a devolver y generamos un ID de Devolución único
+        // Calculamos el total a devolver y sacamos los asientos (con cuidado por si son
+        // nulos)
+        double totalDevuelto = 0;
+        StringBuilder asientosDevueltos = new StringBuilder();
 
-            ois.close();
-            System.out.println("Datos cargados con éxito. Eventos recuperados: " + this.catalogo.size());
+        for (pedidos.Entrada e : op.getEntradasAfectadas()) {
+            totalDevuelto += e.getPrecioFinal();
 
-        } catch (Exception e) {
-            System.out.println("Error al cargar los datos binarios.");
-            e.printStackTrace();
+            // ESCUDO: Comprobamos si la entrada tiene un asiento físico asignado
+            if (e.getAsiento() != null) {
+                asientosDevueltos.append(e.getAsiento().getIdAsiento()).append(", ");
+            } else {
+                asientosDevueltos.append("General, ");
+            }
         }
-    }
 
-    public void guardarDevolucionEnFichero(Operacion op) {
-        try {
-            File directorio = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
-            if (!directorio.exists()) {
-                directorio.mkdirs();
-            }
+        // Quitamos la última coma y espacio de los asientos
+        String asientosStr = asientosDevueltos.length() > 0
+                ? asientosDevueltos.substring(0, asientosDevueltos.length() - 2)
+                : "";
 
-            // Abrimos en modo "true"
-            FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt",
-                    true);
+        // Generamos un ID especial para que sepas que es una devolución (ej.
+        // DEV-8f4b2a)
+        String idDevolucion = "DEV-" + java.util.UUID.randomUUID().toString().substring(0, 6);
+        int cantidadDevuelta = op.getEntradasAfectadas().size();
 
-            writer.write("\n === TICKET DE DEVOLUCIÓN === \n");
-            String fechaFormateada = LocalDateTime.now().format(FORMATO_FECHA);
-            writer.write("Fecha de proceso: " + fechaFormateada + "\n");
-            writer.write("Operación deshecha: " + op.getDetalle() + "\n");
+        // Hacemos el INSERT. Nota que ponemos la cantidad y el precio en NEGATIVO.
+        String sql = "INSERT INTO HISTORIAL_VENTAS (ID_PEDIDO, ID_EVENTO, ID_SESION, CANTIDAD_ENTRADAS, PRECIO_TOTAL, METODO_PAGO, EMAIL_USUARIO, ASIENTOS_COMPRADOS) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-            if (op.getEntradasAfectadas() != null && !op.getEntradasAfectadas().isEmpty()) {
-                pedidos.Entrada primera = op.getEntradasAfectadas().get(0);
-                writer.write("Evento ID: " + primera.getIdEvento() + " | Sesión ID: " + primera.getIdSesion() + "\n");
-            }
+        try (java.sql.Connection conn = ConexionDB.conectar();
+                java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // Calculamos cuánto dinero hay que devolver sumando las entradas afectadas
-            double totalDevuelto = 0;
-            for (pedidos.Entrada e : op.getEntradasAfectadas()) {
-                totalDevuelto += e.getPrecioFinal();
-            }
+            if (conn == null)
+                return;
 
-            writer.write("Estado: CANCELADO / REEMBOLSADO\n");
+            pstmt.setString(1, idDevolucion);
+            pstmt.setString(2, idEvento);
+            pstmt.setString(3, idSesion);
+            pstmt.setInt(4, -cantidadDevuelta); // Cantidad en negativo
+            pstmt.setDouble(5, -totalDevuelto); // Dinero en negativo
+            pstmt.setString(6, "REEMBOLSO"); // Método de pago especial
+            pstmt.setString(7, "usuario@sistema"); // O saca el email si lo tienes guardado en la operación
+            pstmt.setString(8, "DEVOLUCIÓN: " + asientosStr);
 
-            writer.write("Total: -" + totalDevuelto + " euros\n");
-            writer.write("=============================\n");
+            pstmt.executeUpdate();
+            System.out.println("Justificante de devolución " + idDevolucion + " guardado en la nube.");
 
-            writer.close();
-
-        } catch (IOException e) {
-            System.out.println("Error al escribir el ticket de devolución en el historial físico.");
-            e.printStackTrace();
+        } catch (java.sql.SQLException e) {
+            System.out.println("Error al guardar la devolución en la nube: " + e.getMessage());
         }
     }
 
@@ -803,15 +845,20 @@ public class SistemaTicketing {
         }
     }
 
-    private void actualizarAforoEnNube(Sesion s) {
-        String sql = "UPDATE SESIONES SET aforo_disponible = ? WHERE id_sesion = ?";
+    // Le añadimos el String idEvento al paréntesis
+    private void actualizarAforoEnNube(Sesion s, String idEvento) {
+        // Añadimos "AND id_evento = ?" para que sea un tiro de precisión
+        String sql = "UPDATE SESIONES SET aforo_disponible = ? WHERE id_sesion = ? AND id_evento = ?";
+
         try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
                 java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, s.getAforoDisponible());
             pstmt.setString(2, s.getIdSesion());
+            pstmt.setString(3, idEvento); // <--- Usamos el ID que pasamos por parámetro
+
             pstmt.executeUpdate();
-            System.out.println("Base de datos actualizada.");
+            System.out.println("Base de datos actualizada con éxito.");
 
         } catch (java.sql.SQLException e) {
             e.printStackTrace();

@@ -1,6 +1,10 @@
 {
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "c:\\Users\\nanan\\Downloads\\ojdbc17.jar"
+        "c:\\Users\\nanan\\Downloads\\ojdbc17.jar",
+        "PracticaSistemaTicketing/lib/ojdbc17.jar",
+        "PracticaSistemaTicketing/lib/oraclepki.jar",
+        "PracticaSistemaTicketing/lib/osdt_cert.jar",
+        "PracticaSistemaTicketing/lib/osdt_core.jar"
     ]
 }

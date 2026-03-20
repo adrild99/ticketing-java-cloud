@@ -1,8 +1,7 @@
 package modelo;
 
-import java.io.Serializable;
 
-public class Cine extends Evento implements Serializable{
+public class Cine extends Evento{
 
     private boolean es3D;
     private boolean esEstreno;

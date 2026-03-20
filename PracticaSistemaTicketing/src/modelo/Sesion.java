@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import excepciones.AsientoNoDisponibleException;
 
-
 public class Sesion {
 
     private String idSesion;
@@ -49,7 +48,7 @@ public class Sesion {
 
     public void liberarGeneral(int cantidad) {
         this.aforoDisponible = this.aforoDisponible + cantidad;
-        if (this.aforoDisponible > this.aforoTotal) { //estoe s para que el disponible nunca sea mayor que el total
+        if (this.aforoDisponible > this.aforoTotal) { // estoe s para que el disponible nunca sea mayor que el total
             this.aforoDisponible = this.aforoTotal;
         }
     }
@@ -76,10 +75,10 @@ public class Sesion {
 
     public void liberarAsientos(ArrayList<Asiento> asientosLiberar) {
         for (Asiento asiento : asientosLiberar) {
-            asiento.setReservado(false); 
+            asiento.setReservado(false);
         }
         this.aforoDisponible = this.aforoDisponible + asientosLiberar.size();
-        
+
         // Si al devolver nos pasamos del máximo, lo topamos al máximo
         if (this.aforoDisponible > this.aforoTotal) {
             this.aforoDisponible = this.aforoTotal;
@@ -142,4 +141,5 @@ public class Sesion {
     public int getAforoTotal() {
         return aforoTotal;
     }
+
 }
