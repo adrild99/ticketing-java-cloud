@@ -294,3 +294,11 @@ Datos del pedido:
 PEDIDO: PED-296B8B, Estado: PROCESADO, Total: 26.0 euros, Nº Entradas: 1
 Evento: Gira Mundial AC/DC Evento ID: EV-01 | Sesión ID: SES-01
 =============================
+
+ === NUEVO TICKET DE VENTA === 
+Fecha de proceso: 20/03/2026 a las 22:38:11
+Método de pago: Bizum
+Datos del pedido: 
+PEDIDO: PED-268625, Estado: PROCESADO, Total: 130.0 euros, Nº Entradas: 5
+Evento: Gira Mundial AC/DC Evento ID: EV-01 | Sesión ID: SES-01
+=============================

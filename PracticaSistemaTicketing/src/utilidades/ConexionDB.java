@@ -1,5 +1,6 @@
 package utilidades;
 
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -9,7 +10,9 @@ public class ConexionDB {
         try {
             // 1. Cargamos el archivo de configuración secreto
             java.util.Properties config = new java.util.Properties();
-            try (java.io.FileInputStream fis = new java.io.FileInputStream("config.properties")) {
+            try (java.io.FileInputStream fis = new FileInputStream(
+                    "PracticaSistemaTicketing/config.properties");) {// Le indicamos la ruta exacta desde la
+                                                                              // carpeta donde se ejecuta VS Code
                 config.load(fis);
             } catch (Exception e) {
                 System.out.println("Error: No se encuentra el archivo config.properties");
