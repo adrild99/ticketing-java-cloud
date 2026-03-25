@@ -7,41 +7,54 @@ import java.sql.SQLException;
 public class ConexionDB {
 
     public static Connection conectar() {
-        try {
-            // 1. Cargamos el archivo de configuración secreto
-            java.util.Properties config = new java.util.Properties();
-            try (java.io.FileInputStream fis = new FileInputStream(
-                    "PracticaSistemaTicketing/config.properties");) {// Le indicamos la ruta exacta desde la
-                                                                              // carpeta donde se ejecuta VS Code
-                config.load(fis);
-            } catch (Exception e) {
-                System.out.println("Error: No se encuentra el archivo config.properties");
-                return null;
+        java.util.Properties config = new java.util.Properties();
+
+        // Busca config.properties en varias ubicaciones posibles
+        String[] rutas = {
+                "config.properties", // Si se ejecuta desde la raíz del proyecto
+                "PracticaSistemaTicketing/config.properties", // Si se ejecuta desde el workspace
+                "../config.properties" // Fallback
+        };
+
+        boolean cargado = false;
+        for (String ruta : rutas) {
+            java.io.File archivo = new java.io.File(ruta);
+            if (archivo.exists()) {
+                try (FileInputStream fis = new FileInputStream(archivo)) {
+                    config.load(fis);
+                    cargado = true;
+                    break;
+                } catch (Exception e) {
+                    // Intentar siguiente ruta
+                }
             }
+        }
 
-            // 2. Extraemos los datos a variables
-            String rutaWallet = config.getProperty("db.wallet.path");
-            String url = config.getProperty("db.url");
-            String user = config.getProperty("db.user");
-            String password = config.getProperty("db.password");
+        if (!cargado) {
+            System.out.println("❌ Error: No se encuentra config.properties");
+            System.out.println("   Copia config.properties.example como config.properties y rellénalo.");
+            return null;
+        }
 
-            // Limpieza total de memoria de intentos previos
-            System.clearProperty("oracle.net.tns_admin");
-            System.clearProperty("oracle.net.wallet_location");
-            System.clearProperty("javax.net.ssl.keyStore");
-            System.clearProperty("javax.net.ssl.trustStore");
+        String rutaWallet = config.getProperty("db.wallet.path");
+        String url = config.getProperty("db.url");
+        String user = config.getProperty("db.user");
+        String password = config.getProperty("db.password");
 
-            // Propiedades mínimas
-            java.util.Properties props = new java.util.Properties();
-            props.setProperty("user", user);
-            props.setProperty("password", password);
-            props.setProperty("oracle.net.tns_admin", rutaWallet);
+        System.clearProperty("oracle.net.tns_admin");
+        System.clearProperty("oracle.net.wallet_location");
+        System.clearProperty("javax.net.ssl.keyStore");
+        System.clearProperty("javax.net.ssl.trustStore");
 
-            Connection conexion = java.sql.DriverManager.getConnection(url, props);
-            return conexion;
+        java.util.Properties props = new java.util.Properties();
+        props.setProperty("user", user);
+        props.setProperty("password", password);
+        props.setProperty("oracle.net.tns_admin", rutaWallet);
 
+        try {
+            return java.sql.DriverManager.getConnection(url, props);
         } catch (Exception e) {
-            System.out.println("Error de conexión: " + e.getMessage());
+            System.out.println("❌ Error de conexión: " + e.getMessage());
             return null;
         }
     }

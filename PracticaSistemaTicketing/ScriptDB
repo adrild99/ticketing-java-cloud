@@ -20,6 +20,8 @@ CREATE TABLE SESIONES (
 );
 
 
+
+
 -- CONCIERTOS
 INSERT INTO EVENTOS VALUES ('EV-01', 'Gira Mundial AC/DC', 'Estadio La Cartuja', 'CONCIERTO');
 INSERT INTO EVENTOS VALUES ('EV-02', 'Dua Lipa: Future Nostalgia', 'Wizink Center', 'CONCIERTO');

@@ -1,0 +1,5 @@
+# Copia este archivo como config.properties y rellena tus datos
+db.wallet.path=wallet
+db.url=jdbc:oracle:thin:@TU_ALIAS_HIGH
+db.user=TU_USUARIO
+db.password=TU_CONTRASEÑA
