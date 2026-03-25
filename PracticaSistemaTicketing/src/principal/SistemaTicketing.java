@@ -46,45 +46,6 @@ public class SistemaTicketing {
         sistema.menu();
     }
 
-    /*
-     * //esto son los datos creados
-     * public void inicializarDatos() {
-     * System.out.println("Cargando catálogo de eventos...");
-     * 
-     * Concierto c1 = new Concierto("Festival Rock", "Wizink Center",
-     * Categoria.CONCIERTO, true, false);
-     * Concierto c2 = new Concierto("Concierto Indie", "Sala Riviera",
-     * Categoria.CONCIERTO, false, false);
-     * 
-     * Sesion s1 = new Sesion(LocalDateTime.now().plusDays(10), 500, 500,
-     * ModoAforo.GENERAL);
-     * Sesion s2 = new Sesion(LocalDateTime.now().plusDays(10), 500, 500,
-     * ModoAforo.GENERAL);
-     * 
-     * c1.addSesion(s1);
-     * c2.addSesion(s2);
-     * 
-     * Teatro t1 = new Teatro("El Rey León", "Teatro Lope de Vega",
-     * Categoria.TEATRO, false, true);
-     * Sesion s3 = new Sesion(LocalDateTime.now().plusDays(5), 100, 100,
-     * ModoAforo.NUMERADO);
-     * Sesion s4 = new Sesion(LocalDateTime.now().plusDays(6), 100, 100,
-     * ModoAforo.NUMERADO);
-     * Cine p1 = new Cine("Interstellar", "Mk2 Cinesur", Categoria.CINE, false,
-     * false);
-     * Sesion s5 = new Sesion(LocalDateTime.now().plusDays(6), 60, 60,
-     * ModoAforo.NUMERADO);
-     * 
-     * t1.addSesion(s3);
-     * t1.addSesion(s4);
-     * p1.addSesion(s5);
-     * 
-     * this.catalogo.add(c1);
-     * this.catalogo.add(c2);
-     * this.catalogo.add(t1);
-     * this.catalogo.add(p1);
-     * }
-     */
     public void menu() {
         boolean salir = false;
 
@@ -537,7 +498,7 @@ public class SistemaTicketing {
         }
 
         // Por tanto, el dinero ya sumó en el .txt y hay que hacer un ticket negativo.
-        if (estabaEnCola == false) {
+        if (!estabaEnCola) {
             db.guardarDevolucionEnNube(ultima);
             System.out.println(
                     "El pedido ya estaba procesado. Se ha generado un comprobante de DEVOLUCIÓN en el archivo físico.");
@@ -580,25 +541,23 @@ public class SistemaTicketing {
             archivo.getParentFile().mkdirs(); // Crea la carpeta padre si no existe
 
             // 3. Ahora guardamos el archivo indicando la ruta: "carpeta/archivo.txt"
-            FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt",
-                    true);
+            try (FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt",
+                    true)) {
 
-            String tipoPago = pedido.getPago().getClass().getSimpleName().replace("Pago", "");
+                String tipoPago = pedido.getPago().getClass().getSimpleName().replace("Pago", "");
 
-            // Redactamos el documento
-            writer.write("\n === NUEVO TICKET DE VENTA === \n");
+                // Redactamos el documento
+                writer.write("\n === NUEVO TICKET DE VENTA === \n");
 
-            String fechaFormateada = LocalDateTime.now().format(FORMATO_FECHA);
-            writer.write("Fecha de proceso: " + fechaFormateada + "\n");
+                String fechaFormateada = LocalDateTime.now().format(FORMATO_FECHA);
+                writer.write("Fecha de proceso: " + fechaFormateada + "\n");
 
-            writer.write("Método de pago: " + tipoPago + "\n");
+                writer.write("Método de pago: " + tipoPago + "\n");
 
-            writer.write("Datos del pedido: \n");
-            writer.write(pedido.toString() + "\n");
-            writer.write("=============================\n");
-
-            // Cerramos el archivo
-            writer.close();
+                writer.write("Datos del pedido: \n");
+                writer.write(pedido.toString() + "\n");
+                writer.write("=============================\n");
+            }
 
             System.out.println("Pedido guardado físicamente en 'registroEntradas/RegistroVentas.txt'");
 
@@ -607,86 +566,5 @@ public class SistemaTicketing {
             e.printStackTrace();
         }
     }
-    /*
-     * public void mostrarEstadisticas() {
-     * System.out.println("\n--- ESTADÍSTICAS DE VENTAS ---");
-     * double totalRecaudado = 0;
-     * int pedidosProcesados = 0;
-     * 
-     * // Apuntamos al archivo que tu Opción 4 genera
-     * File archivo = new
-     * File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
-     * 
-     * if (!archivo.exists()) {
-     * System.out.
-     * println("Todavía no hay ventas registradas o el archivo no existe.");
-     * return;
-     * }
-     * 
-     * try {
-     * 
-     * BufferedReader reader = new BufferedReader(new FileReader(archivo));
-     * String linea;
-     * 
-     * while ((linea = reader.readLine()) != null) {
-     * 
-     * // Buscamos la línea que tiene el resumen del pedido
-     * if (linea.contains("Total: ")) {
-     * try {
-     * int inicio = linea.indexOf("Total: ") + 7;
-     * int fin = linea.indexOf("euros");
-     * 
-     * String cifraTexto = linea.substring(inicio, fin).trim();
-     * 
-     * totalRecaudado += Double.parseDouble(cifraTexto);
-     * pedidosProcesados++;
-     * } catch (Exception e) {
-     * 
-     * }
-     * }
-     * }
-     * reader.close();
-     * System.out.println("Dinero recaudado: " + totalRecaudado + " euros");
-     * System.out.println("Total de pedidos procesados: " + pedidosProcesados);
-     * System.out.println("---------------------------------");
-     * 
-     * } catch (IOException e) {
-     * System.out.println("Error al abrir el archivo de ventas.");
-     * e.printStackTrace();
-     * }
-     * }
-     * 
-     * public static void leerHistorialVentas() {
-     * System.out.println("\n--- HISTORIAL COMPLETO DE VENTAS ---");
-     * 
-     * // instanciamos el log
-     * File archivo = new
-     * File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
-     * 
-     * // Si nadie ha comprado nada aún, avisamos y salimos
-     * if (!archivo.exists()) {
-     * System.out.println("Todavía no hay ventas registradas.");
-     * return;
-     * }
-     * 
-     * try {
-     * // usamos buffer reader para leer el archivo
-     * BufferedReader reader = new BufferedReader(new FileReader(archivo));
-     * String linea;
-     * 
-     * // Leemos línea a línea hasta que se acabe el texto y devuelva null
-     * while ((linea = reader.readLine()) != null) {
-     * System.out.println(linea); // Imprimimos cada línea tal cual está en el .txt
-     * }
-     * 
-     * // Cerramos el grifo de lectura
-     * reader.close();
-     * System.out.println("--- FIN DEL HISTORIAL ---\n");
-     * 
-     * } catch (IOException e) {
-     * System.out.println("Error al leer el archivo de ventas.");
-     * e.printStackTrace();
-     * }
-     * }
-     */
+
 }

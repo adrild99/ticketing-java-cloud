@@ -1,10 +1,8 @@
 package modelo;
 
 import java.util.ArrayList;
-import java.io.Serializable;
 
-
-public abstract class Evento implements Vendible, Serializable{
+public abstract class Evento implements Vendible {
 
     // Contador global para todos los eventos.
     private static int contadorEventos = 1;
@@ -38,6 +36,10 @@ public abstract class Evento implements Vendible, Serializable{
 
         // Añadimos la sesión a la lista
         this.sesiones.add(s);
+    }
+
+    public void addSesionDesdeBD(Sesion s) {
+        this.sesiones.add(s); // El ID ya viene puesto de Oracle, no lo tocamos
     }
 
     public Sesion getSesionById(String id) {

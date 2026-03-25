@@ -1,8 +1,6 @@
 package modelo;
 
-import java.io.Serializable;
-
-public class Asiento implements Serializable {
+public class Asiento {
     private String idAsiento;
     private boolean reservado;
     private Zona zona;

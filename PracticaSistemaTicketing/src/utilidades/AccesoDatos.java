@@ -153,7 +153,7 @@ public class AccesoDatos {
                 "s.ID_SESION, s.FECHA_HORA, s.AFORO_MAXIMO, s.AFORO_DISPONIBLE, s.NOMBRE_ZONA " +
                 "FROM EVENTOS e " +
                 "JOIN SESIONES s ON e.ID_EVENTO = s.ID_EVENTO " +
-                "WHERE s.FECHA_HORA >= CURRENT_TIMESTAMP " + 
+                "WHERE s.FECHA_HORA >= CURRENT_TIMESTAMP " +
                 "ORDER BY s.FECHA_HORA ASC";
 
         try (java.sql.Connection conn = utilidades.ConexionDB.conectar();
@@ -192,7 +192,7 @@ public class AccesoDatos {
                         zona);
                 s.setIdSesion(rsEv.getString("ID_SESION"));
 
-                ev.addSesion(s);
+                ev.addSesionDesdeBD(s);
 
                 listaTemporal.add(ev);
 
