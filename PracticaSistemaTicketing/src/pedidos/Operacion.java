@@ -1,25 +1,27 @@
 package pedidos;
+
 import java.util.ArrayList;
 
 public class Operacion {
     private TipoOperacion tipo;
     private String detalle;
-    private ArrayList <Entrada> entradasAfectadas = new ArrayList<>();
+    private ArrayList<Entrada> entradasAfectadas = new ArrayList<>();
+    private String emailUsuario;
 
-    public Operacion(TipoOperacion tipo, String detalle, ArrayList<Entrada> entradasAfectadas){
+    public Operacion(TipoOperacion tipo, String detalle, ArrayList<Entrada> entradasAfectadas, String emailUsuario) {
         this.tipo = tipo;
         this.detalle = detalle;
-        
-        for (Entrada e : entradasAfectadas) {
-            this.entradasAfectadas.add(e);
-        }
+
+        this.entradasAfectadas = new ArrayList<>(entradasAfectadas);
+        this.emailUsuario = emailUsuario;
+
     }
 
     @Override
     public String toString() {
         return "Operación [" + tipo + "] - " + detalle + " (" + entradasAfectadas.size() + " entradas)";
     }
-    
+
     public TipoOperacion getTipo() {
         return tipo;
     }
@@ -42,5 +44,12 @@ public class Operacion {
 
     public void setEntradasAfectadas(ArrayList<Entrada> entradasAfectadas) {
         this.entradasAfectadas = entradasAfectadas;
+    }
+
+    public String getEmailUsuario() {
+        return emailUsuario;
+    }
+    public void setEmailUsuario(){
+        this.emailUsuario=emailUsuario;
     }
 }

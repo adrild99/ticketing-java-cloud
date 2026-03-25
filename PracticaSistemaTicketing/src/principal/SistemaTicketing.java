@@ -390,12 +390,23 @@ public class SistemaTicketing {
             return;
         }
 
+        if (!pago.procesarPago(miCarrito.calcularTotal())) {
+            System.out.println("El pago ha sido rechazado. Compra cancelada.");
+            if (sesionElegida.getModo() == ModoAforo.GENERAL) {
+                sesionElegida.liberarGeneral(cantidad);
+            } else {
+                sesionElegida.liberarAsientos(asientosReservados);
+            }
+            db.actualizarAforoEnNube(sesionElegida, eventoElegido.getId());
+            return;
+        }
+
         Pedido miPedido = new Pedido(miCarrito, pago, eventoElegido.getNombre());
 
         Operacion op = new Operacion(TipoOperacion.COMPRA,
                 "Compra de " + cantidad + " entradas para " + " (Ref: " + miPedido.getIdPedido() + ") "
                         + eventoElegido.getNombre(),
-                entradasCompradas);
+                entradasCompradas, emailCliente);
         this.historial.push(op);
 
         this.colaPedidos.add(miPedido);

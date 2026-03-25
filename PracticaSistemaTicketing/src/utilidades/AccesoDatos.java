@@ -133,7 +133,7 @@ public class AccesoDatos {
             pstmt.setInt(4, -cantidadDevuelta); // Cantidad en negativo
             pstmt.setDouble(5, -totalDevuelto); // Dinero en negativo
             pstmt.setString(6, "REEMBOLSO"); // Método de pago especial
-            pstmt.setString(7, "usuario@sistema"); // O saca el email si lo tienes guardado en la operación
+            pstmt.setString(7, op.getEmailUsuario()); 
             pstmt.setString(8, "DEVOLUCIÓN: " + asientosStr);
 
             pstmt.executeUpdate();

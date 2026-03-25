@@ -36,6 +36,6 @@ public class Carrito {
         return entradas;
     }
     public double getTotal() {
-        return total;
+        return calcularTotal();
     }
 }
