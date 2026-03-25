@@ -576,12 +576,8 @@ public class SistemaTicketing {
 
     public void guardarPedidoEnFichero(Pedido pedido) {
         try {
-            // carpeta que queremos usar
-            File directorio = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
-            // Si la carpeta NO existe, le decimos a Java que la fabrique
-            if (!directorio.exists()) {
-                directorio.mkdirs();
-            }
+            File archivo = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
+            archivo.getParentFile().mkdirs(); // Crea la carpeta padre si no existe
 
             // 3. Ahora guardamos el archivo indicando la ruta: "carpeta/archivo.txt"
             FileWriter writer = new FileWriter("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt",
@@ -612,82 +608,85 @@ public class SistemaTicketing {
         }
     }
     /*
-    public void mostrarEstadisticas() {
-        System.out.println("\n--- ESTADÍSTICAS DE VENTAS ---");
-        double totalRecaudado = 0;
-        int pedidosProcesados = 0;
-
-        // Apuntamos al archivo que tu Opción 4 genera
-        File archivo = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
-
-        if (!archivo.exists()) {
-            System.out.println("Todavía no hay ventas registradas o el archivo no existe.");
-            return;
-        }
-
-        try {
-
-            BufferedReader reader = new BufferedReader(new FileReader(archivo));
-            String linea;
-
-            while ((linea = reader.readLine()) != null) {
-
-                // Buscamos la línea que tiene el resumen del pedido
-                if (linea.contains("Total: ")) {
-                    try {
-                        int inicio = linea.indexOf("Total: ") + 7;
-                        int fin = linea.indexOf("euros");
-
-                        String cifraTexto = linea.substring(inicio, fin).trim();
-
-                        totalRecaudado += Double.parseDouble(cifraTexto);
-                        pedidosProcesados++;
-                    } catch (Exception e) {
-
-                    }
-                }
-            }
-            reader.close();
-            System.out.println("Dinero recaudado: " + totalRecaudado + " euros");
-            System.out.println("Total de pedidos procesados: " + pedidosProcesados);
-            System.out.println("---------------------------------");
-
-        } catch (IOException e) {
-            System.out.println("Error al abrir el archivo de ventas.");
-            e.printStackTrace();
-        }
-    }
-
-    public static void leerHistorialVentas() {
-        System.out.println("\n--- HISTORIAL COMPLETO DE VENTAS ---");
-
-        // instanciamos el log
-        File archivo = new File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
-
-        // Si nadie ha comprado nada aún, avisamos y salimos
-        if (!archivo.exists()) {
-            System.out.println("Todavía no hay ventas registradas.");
-            return;
-        }
-
-        try {
-            // usamos buffer reader para leer el archivo
-            BufferedReader reader = new BufferedReader(new FileReader(archivo));
-            String linea;
-
-            // Leemos línea a línea hasta que se acabe el texto y devuelva null
-            while ((linea = reader.readLine()) != null) {
-                System.out.println(linea); // Imprimimos cada línea tal cual está en el .txt
-            }
-
-            // Cerramos el grifo de lectura
-            reader.close();
-            System.out.println("--- FIN DEL HISTORIAL ---\n");
-
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo de ventas.");
-            e.printStackTrace();
-        }
-    }
-        */
+     * public void mostrarEstadisticas() {
+     * System.out.println("\n--- ESTADÍSTICAS DE VENTAS ---");
+     * double totalRecaudado = 0;
+     * int pedidosProcesados = 0;
+     * 
+     * // Apuntamos al archivo que tu Opción 4 genera
+     * File archivo = new
+     * File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
+     * 
+     * if (!archivo.exists()) {
+     * System.out.
+     * println("Todavía no hay ventas registradas o el archivo no existe.");
+     * return;
+     * }
+     * 
+     * try {
+     * 
+     * BufferedReader reader = new BufferedReader(new FileReader(archivo));
+     * String linea;
+     * 
+     * while ((linea = reader.readLine()) != null) {
+     * 
+     * // Buscamos la línea que tiene el resumen del pedido
+     * if (linea.contains("Total: ")) {
+     * try {
+     * int inicio = linea.indexOf("Total: ") + 7;
+     * int fin = linea.indexOf("euros");
+     * 
+     * String cifraTexto = linea.substring(inicio, fin).trim();
+     * 
+     * totalRecaudado += Double.parseDouble(cifraTexto);
+     * pedidosProcesados++;
+     * } catch (Exception e) {
+     * 
+     * }
+     * }
+     * }
+     * reader.close();
+     * System.out.println("Dinero recaudado: " + totalRecaudado + " euros");
+     * System.out.println("Total de pedidos procesados: " + pedidosProcesados);
+     * System.out.println("---------------------------------");
+     * 
+     * } catch (IOException e) {
+     * System.out.println("Error al abrir el archivo de ventas.");
+     * e.printStackTrace();
+     * }
+     * }
+     * 
+     * public static void leerHistorialVentas() {
+     * System.out.println("\n--- HISTORIAL COMPLETO DE VENTAS ---");
+     * 
+     * // instanciamos el log
+     * File archivo = new
+     * File("PracticaSistemaTicketing/src/registroEntradas/RegistroVentas.txt");
+     * 
+     * // Si nadie ha comprado nada aún, avisamos y salimos
+     * if (!archivo.exists()) {
+     * System.out.println("Todavía no hay ventas registradas.");
+     * return;
+     * }
+     * 
+     * try {
+     * // usamos buffer reader para leer el archivo
+     * BufferedReader reader = new BufferedReader(new FileReader(archivo));
+     * String linea;
+     * 
+     * // Leemos línea a línea hasta que se acabe el texto y devuelva null
+     * while ((linea = reader.readLine()) != null) {
+     * System.out.println(linea); // Imprimimos cada línea tal cual está en el .txt
+     * }
+     * 
+     * // Cerramos el grifo de lectura
+     * reader.close();
+     * System.out.println("--- FIN DEL HISTORIAL ---\n");
+     * 
+     * } catch (IOException e) {
+     * System.out.println("Error al leer el archivo de ventas.");
+     * e.printStackTrace();
+     * }
+     * }
+     */
 }
