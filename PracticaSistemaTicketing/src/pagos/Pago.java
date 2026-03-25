@@ -1,6 +1,5 @@
 package pagos;
 
-
 import java.time.LocalDateTime;
 
 public abstract class Pago implements Pagable {
@@ -13,7 +12,7 @@ public abstract class Pago implements Pagable {
         this.fecha = LocalDateTime.now();
     }
 
-    public abstract boolean procesarPago(double importe);
+    public abstract void procesarPago(double importe) throws excepciones.PagoRechazadoException;
 
     public String getIdPago() {
         return idPago;

@@ -16,10 +16,8 @@ public class PagoTarjeta extends Pago {
     }
 
     @Override
-    public boolean procesarPago(double importe) {
+    public void procesarPago(double importe) throws excepciones.PagoRechazadoException {
         System.out.println("Cobrando " + importe + "€ a la tarjeta de " + titular);
-
-        return true;
     }
 
     public String getNumTarjeta() {
@@ -45,6 +43,7 @@ public class PagoTarjeta extends Pago {
     public String getCVV() {
         return cvv;
     }
+
     public String getCaducidad() {
         return caducidad;
     }

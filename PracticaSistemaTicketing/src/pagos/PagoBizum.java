@@ -1,6 +1,5 @@
 package pagos;
 
-
 public class PagoBizum extends Pago {
 
     private String telefono;
@@ -11,9 +10,11 @@ public class PagoBizum extends Pago {
     }
 
     @Override
-    public boolean procesarPago(double importe) {
-        System.out.println("Conectando con Bizum");
-        return true;
+    public void procesarPago(double importe) throws excepciones.PagoRechazadoException {
+        System.out.println("Conectando con Bizum...");
+        // Aquí iría la lógica real. Si fallara:
+        // throw new excepciones.PagoRechazadoException("Bizum");
+        System.out.println("Pago de " + importe + "€ procesado con Bizum al " + telefono);
     }
 
     public String getTelefono() {

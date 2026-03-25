@@ -390,8 +390,10 @@ public class SistemaTicketing {
             return;
         }
 
-        if (!pago.procesarPago(miCarrito.calcularTotal())) {
-            System.out.println("El pago ha sido rechazado. Compra cancelada.");
+        try {
+            pago.procesarPago(miCarrito.calcularTotal());
+        } catch (excepciones.PagoRechazadoException e) {
+            System.out.println(e.getMessage());
             if (sesionElegida.getModo() == ModoAforo.GENERAL) {
                 sesionElegida.liberarGeneral(cantidad);
             } else {

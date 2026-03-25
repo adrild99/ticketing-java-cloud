@@ -1,5 +1,5 @@
 package pagos;
 
 public interface Pagable {
-    boolean procesarPago(double importe);
+    void procesarPago(double importe) throws excepciones.PagoRechazadoException;
 }
